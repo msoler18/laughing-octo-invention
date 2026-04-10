@@ -1,8 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Upload, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Upload, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Topbar } from "@/components/layout/topbar";
 import { CreatorsTable } from "@/features/creators/creators-table";
@@ -13,8 +14,16 @@ import type { CreatorsFilters } from "@/features/creators/types";
 
 export default function CreatorsPage() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const [filters, setFilters] = useState<CreatorsFilters>({ page: 1, limit: 25 });
 	const [importOpen, setImportOpen] = useState(false);
+
+	// Show toast after redirect from Server Action
+	useEffect(() => {
+		const t = searchParams.get("toast");
+		if (t === "created") toast.success("Creador añadido correctamente");
+		if (t === "updated") toast.success("Creador actualizado correctamente");
+	}, [searchParams]);
 
 	const { data, isLoading, isError, refetch } = useCreators(filters);
 
@@ -36,14 +45,24 @@ export default function CreatorsPage() {
 						: undefined
 				}
 				actions={
-					<Button
-						variant="secondary"
-						size="sm"
-						onClick={() => setImportOpen(true)}
-					>
-						<Upload size={14} />
-						Importar CSV
-					</Button>
+					<>
+						<Button
+							variant="secondary"
+							size="sm"
+							onClick={() => setImportOpen(true)}
+						>
+							<Upload size={14} />
+							Importar CSV
+						</Button>
+						<Button
+							variant="primary"
+							size="sm"
+							onClick={() => router.push("/creators/new")}
+						>
+							<Plus size={14} />
+							Nuevo creador
+						</Button>
+					</>
 				}
 			/>
 

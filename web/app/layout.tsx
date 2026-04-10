@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Providers } from "./providers";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -41,6 +42,11 @@ export default function RootLayout({
 						{children}
 					</div>
 				</Providers>
+				<Toaster
+					theme="dark"
+					position="bottom-right"
+					toastOptions={{ className: "!bg-bg-elevated !text-text-primary !ring-1 !ring-border-default" }}
+				/>
 			</body>
 		</html>
 	);

@@ -34,6 +34,38 @@ export interface CreatorsListResponse {
 }
 
 /** Query params accepted by GET /api/v1/creators */
+/** Full creator returned by GET /api/v1/creators/:id */
+export interface CreatorDetail extends CreatorRow {
+	phone: string | null;
+	email: string | null;
+	avgLikesLast10: string | null;
+	reachRate: string | null;
+	audienceQualityScore: string | null;
+	bioText: string | null;
+	contentLanguage: string | null;
+	dominantFormat: string | null;
+	tiktokHandle: string | null;
+	brandMentionsLast30Posts: number;
+	bioKeywords: string[] | null;
+	contentRateUsd: string | null;
+	paymentMethod: string | null;
+	onboardingStatus: string | null;
+	notes: string | null;
+	gdprConsentAt: string | null;
+	dataQualityFlags: Record<string, unknown>;
+	peakActivityHours: number[] | null;
+	// Score breakdown
+	engagementWeight: string | null;
+	tierWeight: string | null;
+	consistencyWeight: string | null;
+	campaignHistoryWeight: string | null;
+	scoreCalculatedAt: string | null;
+	scoreVersion: number | null;
+	// Embedding
+	vectorized: boolean;
+	embeddingModelId: string | null;
+}
+
 export interface CreatorsFilters {
 	page?: number;
 	limit?: number;
