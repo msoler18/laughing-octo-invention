@@ -19,7 +19,7 @@ concurrency:
 jobs:
   # ─── Frontend (web/) ────────────────────────────────────────────────────────
   web:
-    name: Web — lint · typecheck · test
+    name: Web — lint · typecheck · unit tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -45,9 +45,44 @@ jobs:
       - name: TypeScript check
         run: npm run typecheck
 
-      # Enabled in M0-19 once vitest.config.ts is configured
-      # - name: Unit tests
-      #   run: npm run test
+      - name: Unit tests (Vitest)
+        run: npm run test
+
+  # ─── E2E (Playwright) ───────────────────────────────────────────────────────
+  e2e:
+    name: E2E — smoke tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E tests
+        run: npm run e2e
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report/
+          retention-days: 7
 
   # ─── Server (server/) ───────────────────────────────────────────────────────
   server:
