@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Providers } from "./providers";
 import "./globals.css";
 
 const inter = Inter({
@@ -25,8 +27,21 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="es" className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}>
-			<body className="min-h-full flex flex-col bg-bg-page text-text-primary">{children}</body>
+		<html
+			lang="es"
+			className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+		>
+			<body className="h-full bg-bg-page text-text-primary">
+				<Providers>
+					{/* Fixed sidebar — 240px */}
+					<Sidebar />
+
+					{/* Main content area — offset by sidebar width */}
+					<div className="pl-60 flex flex-col min-h-full">
+						{children}
+					</div>
+				</Providers>
+			</body>
 		</html>
 	);
 }
