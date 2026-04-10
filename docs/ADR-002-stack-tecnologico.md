@@ -6,13 +6,14 @@
 - Estado: Propuesto
 - Autores: Equipo de Producto RealUp
 - Revisores: Por definir
-- Depende de: ADR-001 v1.2
+- Revisión: 2026-04-10 (v1.1 — BullMQ reemplazado por pg_cron, chatbot agregado)
+- Depende de: ADR-001 v1.3
 
 ---
 
 ## Contexto
 
-El ADR-001 define el scope del MVP: 4 pantallas, 6 entidades (Creator, Campaign, CampaignCreator, AuditLog, CreatorScore, CreatorEmbedding), búsqueda RAG con vectorización completa, audit log inmutable, scoring determinista y métricas de performance de posts. Este ADR define con qué se construye todo eso.
+El ADR-001 v1.3 define el scope del MVP: 4 pantallas, 6 entidades (Creator, Campaign, CampaignCreator, AuditLog, CreatorScore, CreatorEmbedding), búsqueda RAG con vectorización completa, audit log inmutable, scoring determinista, métricas de performance de posts y chatbot conversacional. Este ADR define con qué se construye todo eso.
 
 ---
 
@@ -60,26 +61,30 @@ Mantener todo en TypeScript elimina el cambio de contexto de lenguaje, unifica e
 ### Vista general
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Next.js (UI)                         │
-│  App Router · Server + Client Components · TanStack Q  │
-└──────────────────────┬──────────────────────────────────┘
-                       │ fetch / Server Actions
-┌──────────────────────▼──────────────────────────────────┐
-│                  Fastify API  /api/v1/*                 │
-│  TypeScript · Drizzle ORM · Zod · @fastify/swagger      │
-│  AuditLog transaccional · Auth JWT (Supabase Auth)      │
-└──────┬─────────────────┬───────────────────────────────-┘
-       │                 │
-┌──────▼──────┐   ┌──────▼──────────────────────────────-┐
-│ Supabase    │   │ Redis (BullMQ) — Workers async        │
-│ PostgreSQL  │   │  · CSV import pipeline (5 fases)     │
-│ pgvector    │   │  · Embedding generation pipeline     │
-│ RLS         │   └──────────────────────────────────────┘
-│ Supabase    │
-│ Auth        │
-└─────────────┘
+┌────────────────────────────────────────────────────────────┐
+│                      Next.js (UI)                          │
+│  App Router · Server + Client Components · TanStack Query  │
+│  Chat UI (Vercel AI SDK useChat)                           │
+└───────────────────────────┬────────────────────────────────┘
+                            │ fetch / Server Actions
+┌───────────────────────────▼────────────────────────────────┐
+│                   Fastify API  /api/v1/*                   │
+│  TypeScript · Drizzle ORM · Zod · @fastify/swagger         │
+│  AuditLog transaccional · Auth JWT (Supabase Auth)         │
+│  /api/v1/search  (RAG híbrido)                             │
+│  /api/v1/chat    (streaming conversacional)                │
+└───────────────────────────┬────────────────────────────────┘
+                            │
+┌───────────────────────────▼────────────────────────────────┐
+│                       Supabase                             │
+│  PostgreSQL · pgvector (HNSW) · RLS · Supabase Auth        │
+│  pg_cron — jobs programados dentro de la DB:               │
+│    · Embedding batch pipeline (cada 5 min)                 │
+│    · CSV import jobs (enqueue vía tabla jobs)              │
+└────────────────────────────────────────────────────────────┘
 ```
+
+**Sin Redis ni BullMQ en el MVP.** La complejidad operativa de gestionar una instancia Redis no está justificada a esta escala. `pg_cron` resuelve los mismos casos de uso dentro de Supabase, que ya está en el stack.
 
 ---
 
@@ -263,16 +268,42 @@ CREATE POLICY "server_only" ON audit_log
   USING (auth.role() = 'service_role');
 ```
 
-### Workers async — BullMQ + Redis
+### Jobs async — pg_cron (sin Redis, sin BullMQ)
 
-Dos workers independientes:
+`pg_cron` es una extensión de PostgreSQL incluida en Supabase free tier. Ejecuta jobs programados directamente en la DB, sin infraestructura adicional.
 
-| Worker | Trigger | Operación |
+| Job | Schedule | Operación |
 |---|---|---|
-| `csv-import` | Enqueue via endpoint Fastify `/api/v1/imports` | Pipeline CSV 5 fases: parse → dedup → validate → enrich → upsert |
-| `embedding` | Polling sobre `creators.embedding_status = 'pending'` o `pg_notify` | Genera embedding via OpenAI API, escribe en `creator_embeddings` |
+| `process_pending_embeddings` | Cada 5 min | Selecciona hasta 50 creadores con `embedding_status = 'pending'`, llama OpenAI API, escribe en `creator_embeddings`, marca `done` |
+| `process_csv_imports` | Cada 2 min | Lee tabla `import_jobs` con `status = 'queued'`, ejecuta pipeline de 5 fases, actualiza resultado |
 
-El pipeline de embeddings **no va en Edge Functions de Supabase**: límite de ~150ms de wall clock, sin acceso a colas, sin reintentos gestionados. El worker de BullMQ en Node.js resuelve todo esto con reintentos configurables y dead-letter queue.
+```sql
+-- Setup pg_cron jobs
+SELECT cron.schedule(
+  'process-pending-embeddings',
+  '*/5 * * * *',
+  $$ SELECT net.http_post(
+       url := 'https://api.realup.internal/api/v1/workers/embeddings',
+       headers := '{"Authorization": "Bearer <service_token>"}'
+     ) $$
+);
+```
+
+El endpoint de Fastify que dispara el job es idempotente: si ya hay un batch procesándose, retorna 204 sin ejecutar otro. No hay riesgo de procesamiento duplicado.
+
+**Cuándo migrar a BullMQ + Redis:** cuando el volumen de creadores nuevos supere ~500/día o cuando el CSV import supere archivos de 10K filas. En MVP esos límites no se alcanzan.
+
+**Tabla `import_jobs` (cola liviana en PostgreSQL):**
+
+```
+id          UUID PK
+filename    TEXT
+status      TEXT  -- queued | processing | done | failed
+created_at  TIMESTAMPTZ
+started_at  TIMESTAMPTZ
+finished_at TIMESTAMPTZ
+error_log   JSONB
+```
 
 ### Scoring — PL/pgSQL trigger
 
@@ -464,13 +495,65 @@ Campos a loguear por búsqueda:
 
 ---
 
+## Chatbot Conversacional
+
+El chatbot usa exactamente la misma infraestructura RAG del MVP: pgvector, embeddings de creadores ya generados, gpt-4o-mini. El costo adicional es mínimo porque el índice vectorial ya existe.
+
+### Stack
+
+- **`useChat`** de Vercel AI SDK en el frontend — maneja el estado de mensajes, streaming y el historial de conversación en el cliente.
+- **`streamText`** de Vercel AI SDK en el servidor — genera respuestas en streaming con tool calling para consultas estructuradas.
+- **Endpoint:** `POST /api/v1/chat` en Fastify con soporte de streaming (`Transfer-Encoding: chunked`).
+
+### Qué puede responder el chatbot
+
+El chatbot tiene acceso a dos fuentes de datos via tools:
+
+| Tool | Descripción | Ejemplo de query |
+|---|---|---|
+| `searchCreators` | RAG sobre el catálogo vectorizado | *"¿Quiénes son los mejores de fitness en Bogotá con más del 4% de engagement?"* |
+| `queryCampaign` | SQL directo sobre estado de campañas | *"¿Qué creadores de la campaña Google aún no han publicado?"* |
+| `findSimilarCreators` | Vector similarity sobre un creador de referencia | *"Muéstrame perfiles similares a @durbanclavijo"* |
+
+### Flujo de una respuesta
+
+```
+Usuario: "¿Cuántos creadores de tecnología tenemos en Medellín disponibles?"
+  │
+  ├─ gpt-4o-mini analiza el intent → llama tool searchCreators
+  │     { category: "tecnología", city: "Medellín", is_active: true }
+  │
+  ├─ searchCreators ejecuta RAG híbrido (filtros duros + vector search)
+  │     → devuelve 3 creadores
+  │
+  └─ gpt-4o-mini genera respuesta en streaming:
+       "Tienes 3 creadores de tecnología activos en Medellín:
+        @nubelectrica_ (1.1K seguidores, 4.32% engagement)..."
+```
+
+### Contexto de sesión
+
+El historial de mensajes se mantiene en el cliente (Vercel AI SDK `useChat`). El servidor es stateless — cada request incluye el array de mensajes anteriores. Para el MVP no hay persistencia de conversaciones en DB (eso es Fase 2).
+
+### UI
+
+Un panel lateral o modal de chat accesible desde cualquier pantalla de la herramienta. Diseñado con shadcn/ui. Soporta Markdown en las respuestas del bot para formatear listas de creadores.
+
+### Costo adicional del chatbot
+
+Cada turno de conversación consume ~500-1000 tokens de gpt-4o-mini (historial + respuesta). Con 20 conversaciones/día de 5 turnos promedio: ~100K tokens/día → **~$1.50/mes adicional**. Total IA con chatbot: **< $3/mes** a escala de MVP.
+
+---
+
 ## Consecuencias y Compromisos
 
 **Un solo lenguaje en todo el stack (TypeScript):** frontend, backend, workers y tipos compartidos. Elimina el cambio de contexto entre Python y JavaScript que habría existido con el stack original.
 
 **Fastify en vez de Supabase como único backend:** PostgREST no orquesta transacciones complejas ni colas. Fastify es la capa de lógica de negocio; Supabase es la capa de datos.
 
-**RAG desde el MVP:** la infraestructura de vectores y embeddings se construye ahora, no en Fase 2. El costo es bajo (~$1/mes a esta escala) y el beneficio es eliminar la migración estructural que habría sido necesaria más adelante.
+**Sin Redis en el MVP:** `pg_cron` dentro de Supabase maneja los jobs de embeddings y de CSV import. BullMQ + Redis queda como upgrade explícito cuando el volumen justifique la complejidad operativa adicional.
+
+**RAG y chatbot desde el MVP:** la infraestructura de vectores y embeddings se construye ahora. El chatbot reutiliza esa infraestructura sin costo estructural adicional. Costo total de IA estimado: **< $3/mes** a escala de MVP (búsquedas + chatbot).
 
 **Deuda técnica planificada:**
 - Auth de usuario (Supabase Auth + RLS por `auth.uid()`) no está en el MVP pero el sistema está diseñado para recibirla sin refactorización

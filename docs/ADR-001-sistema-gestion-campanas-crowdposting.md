@@ -3,7 +3,7 @@
 ## Metadata
 
 - Fecha: 2026-04-10
-- Revisión: 2026-04-10 (v1.2 — RAG y vectorización adelantados al MVP)
+- Revisión: 2026-04-10 (v1.3 — chatbot conversacional agregado al MVP)
 - Estado: Propuesto
 - Autores: Equipo de Producto RealUp
 - Revisores: Por definir
@@ -76,6 +76,7 @@ La decisión de stack tecnológico se documentará en un ADR separado.
 - Exportación de campaña a CSV en una sola acción para reporte
 - **Métricas de performance de posts:** registro manual de impresiones, alcance y saves por post. Entrada de datos por el ops team; sin integración con API en esta fase.
 - **Scoring automático de creadores:** puntuación calculada (0-100) por creador basada en engagement_quality, consistency_score, historial de campañas completadas y tier. Se recalcula automáticamente cuando estos campos cambian. Es explicable: la interfaz muestra qué variables pesaron en el score.
+- **Chatbot conversacional:** interfaz de chat que permite al equipo hacer preguntas en lenguaje natural sobre el catálogo de creadores y el estado de las campañas. Usa el índice vectorial ya existente en el MVP. Ejemplos de queries: *"¿Quiénes son los mejores creadores de fitness en Bogotá con más de 4% de engagement?"*, *"¿Qué creadores de la campaña X aún no han publicado?"*, *"Muéstrame creadores similares a @usuario123"*. Soporta refinamiento iterativo en la misma sesión (el agente mantiene contexto de los turnos anteriores).
 
 ### Could Have — Deseable en iteraciones cortas post-MVP
 

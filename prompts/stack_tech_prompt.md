@@ -88,6 +88,25 @@ El prompt generó el ADR-002 que define:
 
 ---
 
+---
+
+## Revisión v1.1 — 2026-04-10
+
+### Cambios al stack
+
+| Cambio | Antes | Ahora | Motivo |
+|---|---|---|---|
+| Workers async | BullMQ + Redis | `pg_cron` dentro de Supabase | Simplifica infra de MVP; Redis no justificado a esta escala |
+| Chatbot | No incluido | Agregado al MVP | Infraestructura RAG ya existente; costo adicional < $2/mes |
+
+### Decisiones de infraestructura confirmadas
+
+- Supabase free tier es suficiente para el MVP (~1K creadores, embeddings 512 dims = ~2MB de vectores)
+- BullMQ + Redis queda documentado como upgrade explícito para cuando el volumen supere ~500 creadores nuevos/día
+- Costo total de IA estimado con chatbot: **< $3/mes**
+
+---
+
 ## Siguiente tarea
 
 Generar un Design System en archivo HTML que muestre los
