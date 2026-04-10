@@ -7,6 +7,7 @@ import creatorsRoute from "./routes/v1/creators/index.js";
 import campaignsRoute from "./routes/v1/campaigns/index.js";
 import campaignLifecycleRoute from "./routes/v1/campaigns/lifecycle.js";
 import importRoute from "./routes/v1/import.js";
+import auditRoute from "./routes/v1/audit.js";
 
 export async function buildApp() {
 	const app = fastify({
@@ -26,6 +27,7 @@ export async function buildApp() {
 	await app.register(campaignsRoute, { prefix: "/api/v1" });
 	await app.register(campaignLifecycleRoute, { prefix: "/api/v1" });
 	await app.register(importRoute, { prefix: "/api/v1" });
+	await app.register(auditRoute, { prefix: "/api/v1" });
 
 	return app;
 }
