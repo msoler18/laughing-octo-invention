@@ -1,14 +1,12 @@
-// Schema barrel — re-exports all table definitions.
-export {}; // placeholder until M0-09 populates this file
-// Each milestone adds its own file and re-exports it here.
-// M0-09 → M0-17 will populate this file.
+// Schema barrel — re-exports all table and enum definitions.
+// Drizzle uses this as the single source of truth for type inference.
 
-// Example (added per milestone):
-// export * from "./creators.js";
-// export * from "./campaigns.js";
-// export * from "./campaign-creators.js";
-// export * from "./audit-log.js";
-// export * from "./creator-scores.js";
-// export * from "./creator-embeddings.js";
-// export * from "./import-jobs.js";
-// export * from "./categories.js";
+export * from "./enums.js";
+export * from "./creators.js";
+export * from "./campaigns.js";
+export * from "./campaign-creators.js";
+export * from "./audit-log.js";
+export * from "./creator-scores.js";
+export * from "./creator-embeddings.js";
+export * from "./import-jobs.js";
+export * from "./categories.js";
