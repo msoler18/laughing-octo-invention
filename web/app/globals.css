@@ -6,71 +6,71 @@
    ─────────────────────────────────────────────────────────────────────────── */
 
 @theme {
-  /* Fonts */
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), monospace;
+	/* Fonts */
+	--font-sans: var(--font-inter), system-ui, sans-serif;
+	--font-mono: var(--font-jetbrains-mono), monospace;
 
-  /* ── Primitive gray scale ── */
-  --color-gray-50:  #F8F9FB;
-  --color-gray-100: #EEF1F5;
-  --color-gray-200: #DDE3EC;
-  --color-gray-300: #BEC9D6;
-  --color-gray-400: #9BA8B8;
-  --color-gray-500: #6E7D92;
-  --color-gray-600: #4A5568;
-  --color-gray-700: #2E3A4A;
-  --color-gray-800: #1A2535;
-  --color-gray-900: #0D1520;
+	/* ── Primitive gray scale ── */
+	--color-gray-50: #f8f9fb;
+	--color-gray-100: #eef1f5;
+	--color-gray-200: #dde3ec;
+	--color-gray-300: #bec9d6;
+	--color-gray-400: #9ba8b8;
+	--color-gray-500: #6e7d92;
+	--color-gray-600: #4a5568;
+	--color-gray-700: #2e3a4a;
+	--color-gray-800: #1a2535;
+	--color-gray-900: #0d1520;
 
-  /* ── Blue — primary action ── */
-  --color-blue-300: #93C5FD;
-  --color-blue-400: #3B82F6;
-  --color-blue-500: #2563EB;
-  --color-blue-600: #1D4ED8;
+	/* ── Blue — primary action ── */
+	--color-blue-300: #93c5fd;
+	--color-blue-400: #3b82f6;
+	--color-blue-500: #2563eb;
+	--color-blue-600: #1d4ed8;
 
-  /* ── Violet — AI / semantic accent ── */
-  --color-violet-300: #C4B5FD;
-  --color-violet-400: #7C5CFC;
-  --color-violet-500: #6D28D9;
+	/* ── Violet — AI / semantic accent ── */
+	--color-violet-300: #c4b5fd;
+	--color-violet-400: #7c5cfc;
+	--color-violet-500: #6d28d9;
 
-  /* ── Semantic surfaces ── */
-  --color-bg-page:     #0D1520;
-  --color-bg-surface:  #1A2535;
-  --color-bg-elevated: #213044;
+	/* ── Semantic surfaces ── */
+	--color-bg-page: #0d1520;
+	--color-bg-surface: #1a2535;
+	--color-bg-elevated: #213044;
 
-  /* ── Semantic text ── */
-  --color-text-primary:   #E8EDF3;
-  --color-text-secondary: #9BA8B8;
-  --color-text-tertiary:  #6E7D92;
+	/* ── Semantic text ── */
+	--color-text-primary: #e8edf3;
+	--color-text-secondary: #9ba8b8;
+	--color-text-tertiary: #6e7d92;
 
-  /* ── Semantic borders ── */
-  --color-border-default: #2E3A4A;
-  --color-border-focus:   #3B82F6;
-  --color-border-error:   #F87171;
+	/* ── Semantic borders ── */
+	--color-border-default: #2e3a4a;
+	--color-border-focus: #3b82f6;
+	--color-border-error: #f87171;
 
-  /* ── Status — 9 creator lifecycle states ── */
-  --color-status-prospecto:         #6E7D92;
-  --color-status-contactado:        #38BDF8;
-  --color-status-confirmado:        #7C5CFC;
-  --color-status-en-brief:          #FBBF24;
-  --color-status-contenido-enviado: #F97316;
-  --color-status-aprobado:          #84CC16;
-  --color-status-publicado:         #10B981;
-  --color-status-verificado:        #22D3EE;
-  --color-status-pagado:            #14B8A6;
+	/* ── Status — 9 creator lifecycle states ── */
+	--color-status-prospecto: #6e7d92;
+	--color-status-contactado: #38bdf8;
+	--color-status-confirmado: #7c5cfc;
+	--color-status-en-brief: #fbbf24;
+	--color-status-contenido-enviado: #f97316;
+	--color-status-aprobado: #84cc16;
+	--color-status-publicado: #10b981;
+	--color-status-verificado: #22d3ee;
+	--color-status-pagado: #14b8a6;
 
-  /* ── Border radius ── */
-  --radius-sm:   4px;
-  --radius-md:   6px;
-  --radius-lg:   8px;
-  --radius-xl:   12px;
-  --radius-full: 9999px;
+	/* ── Border radius ── */
+	--radius-sm: 4px;
+	--radius-md: 6px;
+	--radius-lg: 8px;
+	--radius-xl: 12px;
+	--radius-full: 9999px;
 
-  /* ── Shadows / elevation ── */
-  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
-  --shadow-2: 0 4px 8px rgb(0 0 0 / 0.4);
-  --shadow-3: 0 8px 16px rgb(0 0 0 / 0.45);
-  --shadow-4: 0 20px 40px rgb(0 0 0 / 0.5);
+	/* ── Shadows / elevation ── */
+	--shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+	--shadow-2: 0 4px 8px rgb(0 0 0 / 0.4);
+	--shadow-3: 0 8px 16px rgb(0 0 0 / 0.45);
+	--shadow-4: 0 20px 40px rgb(0 0 0 / 0.5);
 }
 
 /* ─── Base resets ─────────────────────────────────────────────────────────── */
@@ -78,9 +78,9 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 html {
-  color-scheme: dark;
+	color-scheme: dark;
 }

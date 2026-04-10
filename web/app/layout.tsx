@@ -3,35 +3,30 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
+	variable: "--font-inter",
+	subsets: ["latin"],
+	display: "swap",
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
+	variable: "--font-jetbrains-mono",
+	subsets: ["latin"],
+	display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "RealUp — Gestión de Campañas",
-  description: "Herramienta interna de gestión de campañas de Crowdposting",
+	title: "RealUp — Gestión de Campañas",
+	description: "Herramienta interna de gestión de campañas de Crowdposting",
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="es"
-      className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-bg-page text-text-primary">
-        {children}
-      </body>
-    </html>
-  );
+	return (
+		<html lang="es" className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}>
+			<body className="min-h-full flex flex-col bg-bg-page text-text-primary">{children}</body>
+		</html>
+	);
 }
