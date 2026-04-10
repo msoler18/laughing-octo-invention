@@ -120,4 +120,22 @@ Cuatro funcionalidades fueron movidas de "Won't Have" al MVP tras revisión del 
 
 La búsqueda por lenguaje natural introduce un LLM en el MVP, pero con rol acotado: únicamente traduce consultas libres a filtros estructurados. No hay generación de contenido ni vectorización en esta fase.
 
+---
+
+## Revisión v1.2 — 2026-04-10
+
+### Cambios al MVP
+
+RAG y vectorización completa del catálogo de creadores se adelantan al MVP.
+
+| Cambio | Detalle |
+|---|---|
+| Búsqueda por lenguaje natural | Pasa de "LLM → filtros estructurados" a "LLM → filtros duros + vector search semántico" |
+| Vectorización del catálogo | Cada creador recibe un embedding en pipeline asíncrono. Nueva entidad `CreatorEmbedding`. |
+| RAG en MVP | Filtros duros reducen el corpus → vector search sobre el subconjunto → ranking por similitud |
+
+### Implicación sobre el roadmap
+
+La infraestructura RAG construida en el MVP elimina la migración estructural que Fase 2 habría necesitado. Fase 2 pasa a agregar inteligencia sobre datos acumulados (scoring contextual por campaña, agente conversacional con refinamiento iterativo, detección de anomalías) sin construir vectorización desde cero.
+
 **Próximo paso:** ADR-002 — Decisión de stack tecnológico.
