@@ -86,7 +86,6 @@ donde entras tú.
 
 ## Notas de ejecución
 
-- Los agentes `content-creator` y `twitter-engager` fueron sustituidos por `ux-researcher` y `ai-engineer` por ser más relevantes al objetivo de producto.
 - El `feedback-synthesizer` consolidó los outputs de los 9 agentes en un único ADR coherente.
 - El dataset real tiene un typo en el header: `engagment_rate` (falta la `e`). Documentado en el ADR como parte de la estrategia de sanitización.
 
@@ -101,5 +100,24 @@ El prompt generó el ADR-001 que define:
 - Roadmap en 3 fases: Control Operativo → IA y Automatización → Plataforma Inteligente
 - Gates concretos para pasar de Fase 1 a Fase 2
 - Plan de lanzamiento de 6 semanas con protocolo de rollback
+
+---
+
+## Revisión v1.1 — 2026-04-10
+
+### Cambios al MVP
+
+Cuatro funcionalidades fueron movidas de "Won't Have" al MVP tras revisión del equipo:
+
+| Funcionalidad | Prioridad en v1.1 | Notas |
+|---|---|---|
+| Métricas de performance de posts | Should Have | Entrada manual (impresiones, alcance, saves). Sin integración API. |
+| Scoring automático de creadores | Should Have | Fórmula determinista ponderada sobre campos ya calculados. No requiere ML. |
+| Historial de cambios / audit log | Must Have | Registro inmutable de cada cambio. Entidad `AuditLog` separada. |
+| Búsqueda por lenguaje natural | Must Have | LLM interpreta query libre → filtros estructurados. No RAG, no vectorización. |
+
+### Implicación sobre IA en Fase 1
+
+La búsqueda por lenguaje natural introduce un LLM en el MVP, pero con rol acotado: únicamente traduce consultas libres a filtros estructurados. No hay generación de contenido ni vectorización en esta fase.
 
 **Próximo paso:** ADR-002 — Decisión de stack tecnológico.

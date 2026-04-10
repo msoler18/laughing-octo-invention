@@ -3,6 +3,7 @@
 ## Metadata
 
 - Fecha: 2026-04-10
+- Revisión: 2026-04-10 (v1.1 — expansión de scope del MVP)
 - Estado: Propuesto
 - Autores: Equipo de Producto RealUp
 - Revisores: Por definir
@@ -61,6 +62,8 @@ La decisión de stack tecnológico se documentará en un ADR separado.
 - Cambio de estado de un creador en campaña en menos de 3 clics, con historial automático registrado
 - Registro de URL del post publicado por creador
 - Filtros por categoría, ciudad, rango de followers y engagement rate
+- **Búsqueda por lenguaje natural:** el usuario escribe en lenguaje libre ("fitness en Medellín con más de 5K seguidores") y el sistema interpreta la intención y aplica los filtros correspondientes. Los dropdowns son opcionales, no obligatorios.
+- **Historial de cambios / audit log:** cada modificación de estado o dato de un creador queda registrada con quién la hizo, cuándo y cuál fue el valor anterior. Inmutable una vez registrada.
 - Vista de campaña con tabla de asignaciones, estado actual, post URL y notas
 - Vista de pipeline con contadores en tiempo real por etapa
 - Progreso de campaña visible sin scroll
@@ -71,6 +74,8 @@ La decisión de stack tecnológico se documentará en un ADR separado.
 - Contadores actualizados en tiempo real al cambiar estados
 - Notas por asignación (relación creador-campaña)
 - Exportación de campaña a CSV en una sola acción para reporte
+- **Métricas de performance de posts:** registro manual de impresiones, alcance y saves por post. Entrada de datos por el ops team; sin integración con API en esta fase.
+- **Scoring automático de creadores:** puntuación calculada (0-100) por creador basada en engagement_quality, consistency_score, historial de campañas completadas y tier. Se recalcula automáticamente cuando estos campos cambian. Es explicable: la interfaz muestra qué variables pesaron en el score.
 
 ### Could Have — Deseable en iteraciones cortas post-MVP
 
@@ -82,11 +87,8 @@ La decisión de stack tecnológico se documentará en un ADR separado.
 
 - Login y autenticación con gestión de sesiones
 - Notificaciones automáticas o alertas por inactividad
-- Métricas de performance de posts (impresiones, alcance, saves)
-- Scoring automático de creadores
-- Historial de cambios detallado / audit log completo
 - Aplicación móvil
-- Integración con Instagram API o cualquier API de red social
+- Integración con Instagram API o cualquier API de red social para extracción automática de métricas
 - Reportes visuales con diseño
 
 ---
@@ -173,6 +175,42 @@ Unidad operativa central del sistema.
 - `status_updated_at` — timestamp del último cambio de estado
 - `assigned_at`, `confirmed_at`, `published_at`, `verified_at`, `paid_at`
 
+**Métricas de performance del post (ingreso manual en MVP):**
+- `impressions` — impresiones totales del post
+- `reach` — alcance único del post
+- `saves` — número de saves
+- `likes`, `comments` — métricas básicas de interacción
+- `metrics_entered_by` — quién ingresó las métricas (trazabilidad)
+- `metrics_entered_at` — cuándo se ingresaron
+
+### Entidad: AuditLog
+
+Registro inmutable de todos los cambios en el sistema. Cada evento genera una entrada; ninguna entrada puede modificarse ni eliminarse.
+
+- `id` — UUID, PK
+- `entity_type` — `'creator' | 'campaign' | 'campaign_creator'`
+- `entity_id` — UUID del registro afectado
+- `action` — `'created' | 'updated' | 'status_changed' | 'deleted'`
+- `field_name` — campo que cambió (nullable si es creación o borrado)
+- `old_value` — valor anterior en texto (nullable)
+- `new_value` — nuevo valor en texto
+- `performed_by` — identificador del usuario que realizó el cambio
+- `performed_at` — `TIMESTAMPTZ NOT NULL DEFAULT now()`
+- `session_context` — metadata adicional opcional (IP, navegador) para auditoría de seguridad
+
+### Entidad: CreatorScore
+
+Score calculado por creador, separado del perfil para facilitar su recálculo sin tocar la tabla principal.
+
+- `creator_id` — FK → creators(id)
+- `score` — `NUMERIC(5,2)` de 0 a 100
+- `engagement_weight` — contribución del engagement_quality al score
+- `consistency_weight` — contribución del consistency_score
+- `campaign_history_weight` — contribución del historial de campañas
+- `tier_weight` — contribución del tier
+- `calculated_at` — cuándo se calculó
+- `score_version` — versión del algoritmo de scoring (para poder comparar scores calculados con versiones distintas)
+
 ---
 
 ## Ciclo de Vida de un Creador en Campaña
@@ -235,7 +273,17 @@ Prospecto → Contactado → Confirmado → En brief → Contenido enviado → A
 
 ## Propuestas de IA / LLM / RAG por Fase
 
-### Fase 1 — No hay IA
+### Fase 1 — IA acotada: solo para búsqueda por lenguaje natural
+
+La búsqueda por lenguaje natural requiere un LLM desde el MVP. Su rol es estrictamente de **interpretación de query → filtros estructurados**: el usuario escribe una consulta libre, el LLM extrae las intenciones (categoría, ciudad, rango de followers, engagement mínimo, etc.) y las traduce a los filtros que ya existen en el sistema. No hay generación de contenido, no hay RAG, no hay vectorización.
+
+**Flujo del natural language search:**
+1. Usuario escribe: *"fitness en Medellín con más de 5K seguidores y engagement alto"*
+2. LLM extrae: `{category: "fitness", city: "Medellín", followers_min: 5000, engagement_quality: ["high", "viral"]}`
+3. El sistema ejecuta la query estructurada con esos parámetros
+4. El usuario puede refinar su búsqueda en lenguaje natural sin tocar ningún dropdown
+
+El scoring de creadores en esta fase es **determinista**, no ML: una fórmula ponderada explícita sobre campos ya calculados (`engagement_quality`, `consistency_score`, `campaigns_participated`, `creator_tier`). No requiere modelo entrenado.
 
 Los datos se estructuran correctamente desde el inicio para que la IA pueda aplicarse en Fase 2 sin migraciones estructurales. Campos como `bio_text`, `consistency_score` y `tags` se capturan como nullable desde el primer día.
 
@@ -357,13 +405,16 @@ El modelo de ranking aprende de campañas pasadas: qué combinaciones de creador
 Un sistema de tres entidades (Creator, Campaign, CampaignCreator) con lógica de estados, campos calculados materializados desde el día uno, y una interfaz de cuatro pantallas que cubren el ciclo completo de una campaña. El modelo de datos está diseñado para soportar IA desde la Fase 2 sin necesidad de refactorización estructural.
 
 **Lo que este ADR implica no construir todavía:**
-Automatizaciones, notificaciones, scoring, IA, app móvil, integraciones con APIs externas.
+Automatizaciones, notificaciones, app móvil, integraciones con APIs externas para extracción automática de métricas.
+
+**Lo que este ADR adelanta al MVP (respecto a la versión inicial):**
+Cuatro funcionalidades que estaban en "Won't Have" pasan al MVP en esta revisión: historial de cambios (audit log), métricas de performance de posts (entrada manual), scoring determinista de creadores, y búsqueda por lenguaje natural. Estas funcionalidades son coherentes con el nivel de complejidad del MVP y no requieren esperar a la Fase 2.
 
 **El compromiso operativo del equipo:**
 Las fases 2 y 3 solo tienen sentido si la Fase 1 se adopta completamente. Sin adopción real y sostenida, los datos que alimentarían la IA son escasos, incompletos o no confiables. La calidad del sistema en Fase 3 depende directamente de la disciplina operativa en Fase 1.
 
 **El compromiso de producto:**
-El MVP resuelve tres problemas críticos: visibilidad de estado en tiempo real, registro estructurado de evidencias, y consolidación de reporte sin trabajo manual. Todo lo demás viene después.
+El MVP resuelve cinco problemas críticos: visibilidad de estado en tiempo real, registro estructurado de evidencias, trazabilidad completa de cambios (audit log), métricas de performance por post, y búsqueda ágil por lenguaje natural. El scoring automático agrega señal de calidad desde el primer día.
 
 **El riesgo aceptado conscientemente:**
 Se construye una herramienta interna en lugar de adaptar una herramienta comercial existente. Ese costo se acepta porque ninguna herramienta comercial disponible está diseñada para el flujo de Crowdposting a la escala que RealUp opera. El diferenciador no es la tecnología. Es que esta herramienta hace exactamente lo que el equipo necesita y nada más.
