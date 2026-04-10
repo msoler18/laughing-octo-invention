@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orbit Design System — RealUp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ─── Orbit Design Tokens ─── */
+    :root {
+      /* Gray scale */
+      --gray-50:  #F8F9FB;
+      --gray-100: #EEF1F5;
+      --gray-200: #DDE3EC;
+      --gray-300: #BEC9D6;
+      --gray-400: #9BA8B8;
+      --gray-500: #6E7D92;
+      --gray-600: #4A5568;
+      --gray-700: #2E3A4A;
+      --gray-800: #1A2535;
+      --gray-900: #0D1520;
+
+      /* Blue (primary action) */
+      --blue-300: #93C5FD;
+      --blue-400: #3B82F6;
+      --blue-500: #2563EB;
+      --blue-600: #1D4ED8;
+
+      /* Violet (AI / semantic accent) */
+      --violet-300: #C4B5FD;
+      --violet-400: #7C5CFC;
+      --violet-500: #6D28D9;
+
+      /* Semantic surfaces */
+      --bg-page:     #0D1520;
+      --bg-surface:  #1A2535;
+      --bg-elevated: #213044;
+
+      /* Semantic text */
+      --text-primary:   #E8EDF3;
+      --text-secondary: #9BA8B8;
+      --text-tertiary:  #6E7D92;
+
+      /* Semantic borders */
+      --border-default: #2E3A4A;
+      --border-focus:   #3B82F6;
+      --border-error:   #F87171;
+
+      /* Status colors */
+      --status-prospecto:        #6E7D92;
+      --status-contactado:       #38BDF8;
+      --status-confirmado:       #7C5CFC;
+      --status-en-brief:         #FBBF24;
+      --status-contenido-enviado:#F97316;
+      --status-aprobado:         #84CC16;
+      --status-publicado:        #10B981;
+      --status-verificado:       #22D3EE;
+      --status-pagado:           #14B8A6;
+
+      /* Status backgrounds (muted) */
+      --status-prospecto-bg:        rgba(110,125,146,0.12);
+      --status-contactado-bg:       rgba(56,189,248,0.12);
+      --status-confirmado-bg:       rgba(124,92,252,0.12);
+      --status-en-brief-bg:         rgba(251,191,36,0.12);
+      --status-contenido-enviado-bg:rgba(249,115,22,0.12);
+      --status-aprobado-bg:         rgba(132,204,22,0.12);
+      --status-publicado-bg:        rgba(16,185,129,0.12);
+      --status-verificado-bg:       rgba(34,211,238,0.12);
+      --status-pagado-bg:           rgba(20,184,166,0.12);
+
+      /* Elevation */
+      --shadow-0: none;
+      --shadow-1: 0 1px 2px rgba(0,0,0,0.4);
+      --shadow-2: 0 4px 8px rgba(0,0,0,0.4);
+      --shadow-3: 0 8px 16px rgba(0,0,0,0.45);
+      --shadow-4: 0 20px 40px rgba(0,0,0,0.5);
+
+      /* Radius */
+      --radius-none: 0px;
+      --radius-sm:   4px;
+      --radius-md:   6px;
+      --radius-lg:   8px;
+      --radius-xl:   12px;
+      --radius-full: 9999px;
+
+      /* Motion */
+      --motion-fast:   100ms cubic-bezier(0.4, 0, 0.2, 1);
+      --motion-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      --motion-slow:   300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+      /* Spacing base-4 */
+      --space-1:  4px;
+      --space-2:  8px;
+      --space-3:  12px;
+      --space-4:  16px;
+      --space-5:  20px;
+      --space-6:  24px;
+      --space-8:  32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+
+      /* Typography */
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-page);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-default);
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+      padding: var(--space-6) 0;
+    }
+    .sidebar-logo {
+      padding: 0 var(--space-5) var(--space-6);
+      border-bottom: 1px solid var(--border-default);
+      margin-bottom: var(--space-4);
+    }
+    .sidebar-logo span {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-primary);
+    }
+    .sidebar-logo small {
+      display: block;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+    .sidebar-group-label {
+      padding: var(--space-2) var(--space-5);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-top: var(--space-4);
+    }
+    .sidebar a {
+      display: block;
+      padding: var(--space-2) var(--space-5);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      border-radius: 0;
+      transition: color var(--motion-fast), background var(--motion-fast);
+    }
+    .sidebar a:hover { color: var(--text-primary); background: var(--bg-elevated); }
+    .sidebar a.active { color: var(--blue-400); font-weight: 500; }
+
+    /* ─── Main content ─── */
+    .main {
+      margin-left: 220px;
+      flex: 1;
+      padding: var(--space-10) var(--space-10);
+      max-width: 1100px;
+    }
+
+    /* ─── Section layout ─── */
+    .section { margin-bottom: var(--space-16); }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--border-default);
+    }
+    .section-desc {
+      color: var(--text-secondary);
+      margin-bottom: var(--space-6);
+      font-size: 13px;
+    }
+    .subsection { margin-bottom: var(--space-10); }
+    .subsection-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--space-4);
+    }
+
+    /* ─── Token row ─── */
+    .token-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-3); }
+    .token-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .token-swatch { height: 56px; }
+    .token-info { padding: var(--space-2) var(--space-3); }
+    .token-name { font-size: 11px; font-weight: 600; color: var(--text-primary); }
+    .token-value { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
+
+    /* ─── Status badges ─── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1;
+    }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+      font-family: var(--font-sans); font-weight: 500; cursor: pointer;
+      border: none; border-radius: var(--radius-md);
+      transition: background var(--motion-fast), opacity var(--motion-fast), box-shadow var(--motion-fast);
+      white-space: nowrap;
+    }
+    .btn-sm  { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn-md  { height: 36px; padding: 0 var(--space-4); font-size: 13px; }
+    .btn-lg  { height: 44px; padding: 0 var(--space-6); font-size: 14px; }
+
+    .btn-primary   { background: var(--blue-400); color: #fff; }
+    .btn-primary:hover { background: var(--blue-500); }
+    .btn-secondary { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-default); }
+    .btn-secondary:hover { background: var(--gray-700); }
+    .btn-ghost     { background: transparent; color: var(--text-secondary); }
+    .btn-ghost:hover { background: var(--bg-elevated); color: var(--text-primary); }
+    .btn-danger    { background: rgba(248,113,113,0.15); color: #F87171; border: 1px solid rgba(248,113,113,0.3); }
+    .btn-danger:hover { background: rgba(248,113,113,0.25); }
+    .btn-ai        { background: rgba(124,92,252,0.15); color: var(--violet-400); border: 1px solid rgba(124,92,252,0.3); }
+    .btn-ai:hover  { background: rgba(124,92,252,0.25); }
+    .btn:disabled  { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── Inputs ─── */
+    .input-wrap { display: flex; flex-direction: column; gap: var(--space-1); max-width: 320px; }
+    .input-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+    .input {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      width: 100%;
+      transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+    }
+    .input::placeholder { color: var(--text-tertiary); }
+    .input:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .input-error { border-color: var(--border-error); }
+    .input-error:focus { box-shadow: 0 0 0 3px rgba(248,113,113,0.15); }
+    .input-hint { font-size: 11px; color: var(--text-tertiary); }
+    .input-hint.error { color: #F87171; }
+    .input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ─── Select ─── */
+    .select {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236E7D92' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    .select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+
+    /* ─── Data table ─── */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: var(--radius-lg); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: var(--bg-elevated); }
+    th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 14px;
+      border-top: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+    tr:hover td { background: var(--bg-elevated); }
+    .td-primary { color: var(--text-primary); font-weight: 500; }
+    .td-mono { font-family: var(--font-mono); font-size: 12px; }
+
+    /* ─── Score badge ─── */
+    .score-badge {
+      display: inline-flex; align-items: center;
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      padding: 2px 8px; border-radius: var(--radius-sm);
+    }
+    .score-a  { background: rgba(132,204,22,0.15); color: #84CC16; }
+    .score-b  { background: rgba(34,211,238,0.15); color: #22D3EE; }
+    .score-c  { background: rgba(251,191,36,0.15); color: #FBBF24; }
+    .score-d  { background: rgba(248,113,113,0.15); color: #F87171; }
+
+    /* ─── Avatar ─── */
+    .avatar {
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 50%; font-weight: 600; flex-shrink: 0;
+      background: var(--bg-elevated); border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+    }
+    .avatar-sm  { width: 24px; height: 24px; font-size: 10px; }
+    .avatar-md  { width: 32px; height: 32px; font-size: 12px; }
+    .avatar-lg  { width: 40px; height: 40px; font-size: 14px; }
+    .avatar-xl  { width: 56px; height: 56px; font-size: 18px; }
+
+    /* ─── Alerts ─── */
+    .alert {
+      display: flex; align-items: flex-start; gap: var(--space-3);
+      padding: var(--space-4); border-radius: var(--radius-lg);
+      font-size: 13px; border: 1px solid;
+    }
+    .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .alert-body { flex: 1; }
+    .alert-title { font-weight: 600; margin-bottom: 2px; }
+    .alert-info    { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: #93C5FD; }
+    .alert-success { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: #6EE7B7; }
+    .alert-warning { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); color: #FDE68A; }
+    .alert-error   { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: #FCA5A5; }
+
+    /* ─── Stat cards (pipeline) ─── */
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      display: flex; flex-direction: column; gap: var(--space-1);
+      min-width: 120px;
+    }
+    .stat-label { font-size: 11px; color: var(--text-tertiary); font-weight: 500; }
+    .stat-count { font-size: 28px; font-weight: 700; line-height: 1; }
+    .stat-meta  { font-size: 11px; color: var(--text-tertiary); }
+
+    /* ─── Kanban card ─── */
+    .kanban-col { min-width: 220px; max-width: 220px; }
+    .kanban-col-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--space-3); padding: 0 var(--space-1);
+    }
+    .kanban-col-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .kanban-count {
+      font-size: 11px; background: var(--bg-elevated);
+      border-radius: var(--radius-full); padding: 1px 7px;
+      color: var(--text-tertiary);
+    }
+    .kanban-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-3);
+      margin-bottom: var(--space-2);
+      cursor: pointer;
+      transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
+    }
+    .kanban-card:hover { border-color: var(--blue-400); box-shadow: var(--shadow-2); }
+    .kanban-card-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .kanban-card-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+    .kanban-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-2); }
+
+    /* ─── RAG search ─── */
+    .rag-search {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-3) var(--space-4);
+      display: flex; flex-direction: column; gap: var(--space-2);
+      transition: border-color var(--motion-normal);
+    }
+    .rag-search.active { border-color: var(--violet-400); box-shadow: 0 0 0 3px rgba(124,92,252,0.15); }
+    .rag-search-top { display: flex; align-items: center; gap: var(--space-2); }
+    .rag-search-icon { font-size: 16px; color: var(--violet-400); }
+    .rag-search-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text-primary); font-family: var(--font-sans); font-size: 14px;
+    }
+    .rag-search-input::placeholder { color: var(--text-tertiary); }
+    .rag-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(124,92,252,0.12); border: 1px solid rgba(124,92,252,0.3);
+      color: var(--violet-300); border-radius: var(--radius-full);
+      font-size: 11px; font-weight: 500; padding: 2px 10px;
+    }
+    .chip-remove { cursor: pointer; color: var(--violet-300); opacity: 0.6; font-size: 12px; line-height: 1; }
+    .chip-remove:hover { opacity: 1; }
+
+    /* ─── Chat ─── */
+    .chat-bubble {
+      max-width: 80%;
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-xl);
+      font-size: 13px; line-height: 1.6;
+    }
+    .chat-user {
+      background: var(--blue-400); color: #fff;
+      border-bottom-right-radius: var(--radius-sm);
+      margin-left: auto;
+    }
+    .chat-assistant {
+      background: var(--bg-elevated); color: var(--text-primary);
+      border: 1px solid var(--border-default);
+      border-bottom-left-radius: var(--radius-sm);
+    }
+    .chat-meta { font-size: 10px; color: var(--text-tertiary); margin-top: 3px; }
+    .chat-tool-call {
+      background: rgba(124,92,252,0.08);
+      border: 1px solid rgba(124,92,252,0.2);
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-3);
+      margin-bottom: var(--space-2);
+      font-family: var(--font-mono); font-size: 11px; color: var(--violet-300);
+    }
+    .chat-input-row {
+      display: flex; gap: var(--space-2); align-items: center;
+      background: var(--bg-elevated); border: 1px solid var(--border-default);
+      border-radius: var(--radius-full); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+    }
+    .chat-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      font-family: var(--font-sans); font-size: 13px; color: var(--text-primary);
+    }
+    .chat-input::placeholder { color: var(--text-tertiary); }
+
+    /* ─── Typography specimens ─── */
+    .type-row { margin-bottom: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border-default); }
+    .type-meta { font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); margin-bottom: var(--space-1); }
+
+    /* ─── Spacing tokens ─── */
+    .space-row { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-3); }
+    .space-block { background: var(--blue-400); height: 16px; border-radius: 2px; opacity: 0.7; }
+    .space-info { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); }
+
+    /* ─── Elevation specimens ─── */
+    .elev-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5) var(--space-6);
+      text-align: center;
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .elev-label { font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+
+    /* ─── Grid showcase ─── */
+    .grid-cell {
+      background: rgba(59,130,246,0.1); border: 1px dashed rgba(59,130,246,0.3);
+      border-radius: var(--radius-sm); padding: var(--space-4);
+      text-align: center; font-size: 12px; color: var(--blue-300);
+    }
+
+    /* ─── Dividers ─── */
+    hr { border: none; border-top: 1px solid var(--border-default); margin: var(--space-6) 0; }
+
+    /* ─── Inline code ─── */
+    code {
+      font-family: var(--font-mono); font-size: 11px;
+      background: var(--bg-elevated); border: 1px solid var(--border-default);
+      padding: 1px 5px; border-radius: var(--radius-sm); color: var(--violet-300);
+    }
+
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .gap-2 { gap: var(--space-2); }
+    .gap-3 { gap: var(--space-3); }
+    .gap-4 { gap: var(--space-4); }
+    .gap-6 { gap: var(--space-6); }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-3); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+    .mt-4 { margin-top: var(--space-4); }
+    .mt-6 { margin-top: var(--space-6); }
+    .mt-8 { margin-top: var(--space-8); }
+  </style>
+</head>
+<body>
+
+<!-- ─── Sidebar Navigation ─── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span>Orbit DS</span>
+    <small>RealUp · v1.0</small>
+  </div>
+
+  <div class="sidebar-group-label">Foundations</div>
+  <a href="#colors">Colors</a>
+  <a href="#typography">Typography</a>
+  <a href="#spacing">Spacing</a>
+  <a href="#elevation">Elevation</a>
+  <a href="#radius">Border Radius</a>
+  <a href="#motion">Motion</a>
+  <a href="#grid">Grid</a>
+
+  <div class="sidebar-group-label">Components</div>
+  <a href="#buttons">Buttons</a>
+  <a href="#badges">Badges</a>
+  <a href="#inputs">Inputs</a>
+  <a href="#avatars">Avatars</a>
+  <a href="#scores">Score Badges</a>
+  <a href="#alerts">Alerts</a>
+
+  <div class="sidebar-group-label">Patterns</div>
+  <a href="#pipeline">Pipeline Stats</a>
+  <a href="#table">DataTable</a>
+  <a href="#kanban">Kanban</a>
+  <a href="#rag">RAG Search</a>
+  <a href="#chat">Chat UI</a>
+</nav>
+
+<!-- ─── Main ─── -->
+<main class="main">
+
+  <!-- Header -->
+  <div style="margin-bottom: var(--space-12);">
+    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--violet-400); margin-bottom: var(--space-2);">Design System</div>
+    <h1 style="font-size: 36px; font-weight: 700; color: var(--text-primary); line-height: 1.1;">Orbit</h1>
+    <p style="color: var(--text-secondary); margin-top: var(--space-2); max-width: 520px;">Dark-first, data-dense design system for RealUp's Crowdposting campaign management tool. Built on Tailwind CSS + SASS tokens + shadcn/ui.</p>
+    <div class="flex gap-2 mt-4" style="flex-wrap: wrap;">
+      <span class="badge" style="background: rgba(59,130,246,0.12); color: var(--blue-300);">Next.js App Router</span>
+      <span class="badge" style="background: rgba(59,130,246,0.12); color: var(--blue-300);">Tailwind CSS</span>
+      <span class="badge" style="background: rgba(124,92,252,0.12); color: var(--violet-300);">shadcn/ui</span>
+      <span class="badge" style="background: rgba(59,130,246,0.12); color: var(--blue-300);">Inter + JetBrains Mono</span>
+    </div>
+  </div>
+
+  <!-- ═══ COLORS ═══ -->
+  <section class="section" id="colors">
+    <h2 class="section-title">Colors</h2>
+    <p class="section-desc">All colors are defined as CSS custom properties on <code>:root</code>. Semantic tokens reference primitives — never use primitives directly in components.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Semantic — Surfaces</div>
+      <div class="token-grid">
+        <div class="token-card">
+          <div class="token-swatch" style="background: var(--bg-page);"></div>
+          <div class="token-info">
+            <div class="token-name">bg-page</div>
+            <div class="token-value">#0D1520</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: var(--bg-surface);"></div>
+          <div class="token-info">
+            <div class="token-name">bg-surface</div>
+            <div class="token-value">#1A2535</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: var(--bg-elevated);"></div>
+          <div class="token-info">
+            <div class="token-name">bg-elevated</div>
+            <div class="token-value">#213044</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Semantic — Text</div>
+      <div class="token-grid">
+        <div class="token-card">
+          <div class="token-swatch" style="background: var(--bg-surface); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--text-primary);">Aa</div>
+          <div class="token-info">
+            <div class="token-name">text-primary</div>
+            <div class="token-value">#E8EDF3</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: var(--bg-surface); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--text-secondary);">Aa</div>
+          <div class="token-info">
+            <div class="token-name">text-secondary</div>
+            <div class="token-value">#9BA8B8</div>
+          </div>
+        </div>
+        <div class="token-card">
+          <div class="token-swatch" style="background: var(--bg-surface); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--text-tertiary);">Aa</div>
+          <div class="token-info">
+            <div class="token-name">text-tertiary</div>
+            <div class="token-value">#6E7D92</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Primary — Blue (Action)</div>
+      <div class="token-grid">
+        <div class="token-card"><div class="token-swatch" style="background: var(--blue-300);"></div><div class="token-info"><div class="token-name">blue-300</div><div class="token-value">#93C5FD</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--blue-400);"></div><div class="token-info"><div class="token-name">blue-400</div><div class="token-value">#3B82F6</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--blue-500);"></div><div class="token-info"><div class="token-name">blue-500</div><div class="token-value">#2563EB</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--blue-600);"></div><div class="token-info"><div class="token-name">blue-600</div><div class="token-value">#1D4ED8</div></div></div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Accent — Violet (AI / Semantic)</div>
+      <div class="token-grid">
+        <div class="token-card"><div class="token-swatch" style="background: var(--violet-300);"></div><div class="token-info"><div class="token-name">violet-300</div><div class="token-value">#C4B5FD</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--violet-400);"></div><div class="token-info"><div class="token-name">violet-400</div><div class="token-value">#7C5CFC</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--violet-500);"></div><div class="token-info"><div class="token-name">violet-500</div><div class="token-value">#6D28D9</div></div></div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Gray Scale — Primitives</div>
+      <div class="token-grid">
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-50);"></div><div class="token-info"><div class="token-name">gray-50</div><div class="token-value">#F8F9FB</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-100);"></div><div class="token-info"><div class="token-name">gray-100</div><div class="token-value">#EEF1F5</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-200);"></div><div class="token-info"><div class="token-name">gray-200</div><div class="token-value">#DDE3EC</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-300);"></div><div class="token-info"><div class="token-name">gray-300</div><div class="token-value">#BEC9D6</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-400);"></div><div class="token-info"><div class="token-name">gray-400</div><div class="token-value">#9BA8B8</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-500);"></div><div class="token-info"><div class="token-name">gray-500</div><div class="token-value">#6E7D92</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-600);"></div><div class="token-info"><div class="token-name">gray-600</div><div class="token-value">#4A5568</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-700);"></div><div class="token-info"><div class="token-name">gray-700</div><div class="token-value">#2E3A4A</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-800);"></div><div class="token-info"><div class="token-name">gray-800</div><div class="token-value">#1A2535</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--gray-900); border: 1px solid var(--border-default);"></div><div class="token-info"><div class="token-name">gray-900</div><div class="token-value">#0D1520</div></div></div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Status Colors — 9 Creator Lifecycle States</div>
+      <div class="token-grid">
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-prospecto-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-prospecto);"></div></div><div class="token-info"><div class="token-name">Prospecto</div><div class="token-value">#6E7D92</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-contactado-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-contactado);"></div></div><div class="token-info"><div class="token-name">Contactado</div><div class="token-value">#38BDF8</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-confirmado-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-confirmado);"></div></div><div class="token-info"><div class="token-name">Confirmado</div><div class="token-value">#7C5CFC</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-en-brief-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-en-brief);"></div></div><div class="token-info"><div class="token-name">En brief</div><div class="token-value">#FBBF24</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-contenido-enviado-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-contenido-enviado);"></div></div><div class="token-info"><div class="token-name">Cont. enviado</div><div class="token-value">#F97316</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-aprobado-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-aprobado);"></div></div><div class="token-info"><div class="token-name">Aprobado</div><div class="token-value">#84CC16</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-publicado-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-publicado);"></div></div><div class="token-info"><div class="token-name">Publicado</div><div class="token-value">#10B981</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-verificado-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-verificado);"></div></div><div class="token-info"><div class="token-name">Verificado</div><div class="token-value">#22D3EE</div></div></div>
+        <div class="token-card"><div class="token-swatch" style="background: var(--status-pagado-bg); display: flex; align-items: center; justify-content: center;"><div style="width: 24px; height: 24px; border-radius: 50%; background: var(--status-pagado);"></div></div><div class="token-info"><div class="token-name">Pagado</div><div class="token-value">#14B8A6</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ TYPOGRAPHY ═══ -->
+  <section class="section" id="typography">
+    <h2 class="section-title">Typography</h2>
+    <p class="section-desc"><strong>Inter</strong> for all UI text. <strong>JetBrains Mono</strong> for code, tokens, numeric data, and API handles.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Inter — Scale</div>
+      <div class="type-row">
+        <div class="type-meta">display · 36px / 700 / 1.1</div>
+        <div style="font-size: 36px; font-weight: 700; line-height: 1.1; color: var(--text-primary);">Crowdposting a escala</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">h1 · 24px / 700 / 1.25</div>
+        <div style="font-size: 24px; font-weight: 700; line-height: 1.25; color: var(--text-primary);">Campaña Google Colombia Q2</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">h2 · 18px / 600 / 1.3</div>
+        <div style="font-size: 18px; font-weight: 600; line-height: 1.3; color: var(--text-primary);">Creadores activos esta semana</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">h3 · 15px / 600 / 1.4</div>
+        <div style="font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--text-primary);">Métricas de performance</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">body · 14px / 400 / 1.5</div>
+        <div style="font-size: 14px; font-weight: 400; line-height: 1.5; color: var(--text-secondary);">El sistema gestiona el ciclo de vida completo de cada creador dentro de una campaña, desde la prospección hasta el pago.</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">body-sm · 13px / 400 / 1.5</div>
+        <div style="font-size: 13px; font-weight: 400; line-height: 1.5; color: var(--text-secondary);">Categoría: Lifestyle · Engagement rate: 4.6%</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">caption · 11px / 500 / 1.4</div>
+        <div style="font-size: 11px; font-weight: 500; line-height: 1.4; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em;">Última actualización · hace 2 horas</div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">JetBrains Mono — Data & Code</div>
+      <div class="type-row">
+        <div class="type-meta">mono-md · 13px / 400</div>
+        <div style="font-family: var(--font-mono); font-size: 13px; color: var(--text-primary);">@mariafernandez_co · 287,400 seguidores</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">mono-sm · 11px / 400</div>
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);">engagment_rate: 4.60% · score: 87.3 · embedding: ✓</div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">stat-number · 28px / 700</div>
+        <div style="font-size: 28px; font-weight: 700; color: var(--text-primary);">247</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SPACING ═══ -->
+  <section class="section" id="spacing">
+    <h2 class="section-title">Spacing</h2>
+    <p class="section-desc">Base-4 scale. All spacing values are multiples of 4px. Applied via CSS custom properties and Tailwind's spacing scale.</p>
+    <div>
+      <div class="space-row"><div class="space-block" style="width: 4px;"></div><div class="space-info">space-1 · 4px · Tailwind: p-1, gap-1</div></div>
+      <div class="space-row"><div class="space-block" style="width: 8px;"></div><div class="space-info">space-2 · 8px · Tailwind: p-2, gap-2</div></div>
+      <div class="space-row"><div class="space-block" style="width: 12px;"></div><div class="space-info">space-3 · 12px · Tailwind: p-3, gap-3</div></div>
+      <div class="space-row"><div class="space-block" style="width: 16px;"></div><div class="space-info">space-4 · 16px · Tailwind: p-4, gap-4 — default component padding</div></div>
+      <div class="space-row"><div class="space-block" style="width: 20px;"></div><div class="space-info">space-5 · 20px · Tailwind: p-5, gap-5</div></div>
+      <div class="space-row"><div class="space-block" style="width: 24px;"></div><div class="space-info">space-6 · 24px · Tailwind: p-6, gap-6 — section gaps</div></div>
+      <div class="space-row"><div class="space-block" style="width: 32px;"></div><div class="space-info">space-8 · 32px · Tailwind: p-8, gap-8</div></div>
+      <div class="space-row"><div class="space-block" style="width: 40px;"></div><div class="space-info">space-10 · 40px · page padding horizontal</div></div>
+      <div class="space-row"><div class="space-block" style="width: 48px;"></div><div class="space-info">space-12 · 48px</div></div>
+      <div class="space-row"><div class="space-block" style="width: 64px;"></div><div class="space-info">space-16 · 64px · section separation</div></div>
+    </div>
+  </section>
+
+  <!-- ═══ ELEVATION ═══ -->
+  <section class="section" id="elevation">
+    <h2 class="section-title">Elevation</h2>
+    <p class="section-desc">Five levels of shadow. Use to communicate interactive depth and layer hierarchy on dark backgrounds.</p>
+    <div class="flex gap-6 flex-wrap mt-4">
+      <div class="elev-card" style="box-shadow: var(--shadow-0); min-width: 160px;">
+        <div class="elev-label">elevation-0</div>
+        none — flat, resting
+      </div>
+      <div class="elev-card" style="box-shadow: var(--shadow-1); min-width: 160px;">
+        <div class="elev-label">elevation-1</div>
+        0 1px 2px · inputs, cells
+      </div>
+      <div class="elev-card" style="box-shadow: var(--shadow-2); min-width: 160px;">
+        <div class="elev-label">elevation-2</div>
+        0 4px 8px · cards, hover
+      </div>
+      <div class="elev-card" style="box-shadow: var(--shadow-3); min-width: 160px;">
+        <div class="elev-label">elevation-3</div>
+        0 8px 16px · dropdowns
+      </div>
+      <div class="elev-card" style="box-shadow: var(--shadow-4); min-width: 160px;">
+        <div class="elev-label">elevation-4</div>
+        0 20px 40px · modals
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ BORDER RADIUS ═══ -->
+  <section class="section" id="radius">
+    <h2 class="section-title">Border Radius</h2>
+    <p class="section-desc">Six steps from sharp to pill. Use consistently — avoid mixing lg and xl in the same component.</p>
+    <div class="flex gap-4 flex-wrap mt-4">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div style="width: 64px; height: 64px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-none);"></div>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">none · 0</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div style="width: 64px; height: 64px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-sm);"></div>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">sm · 4px</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div style="width: 64px; height: 64px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md);"></div>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">md · 6px</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div style="width: 64px; height: 64px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg);"></div>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">lg · 8px</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div style="width: 64px; height: 64px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-xl);"></div>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">xl · 12px</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div style="width: 64px; height: 64px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-full);"></div>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">full · pill</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MOTION ═══ -->
+  <section class="section" id="motion">
+    <h2 class="section-title">Motion</h2>
+    <p class="section-desc">All transitions use <code>cubic-bezier(0.4, 0, 0.2, 1)</code> — Material's standard easing. Three speeds for different use cases.</p>
+    <div class="flex gap-4 flex-wrap mt-4">
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-5) var(--space-6); min-width: 200px;">
+        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1);">fast · 100ms</div>
+        <div style="font-size: 12px; color: var(--text-tertiary);">Hover states, focus rings, icon swaps</div>
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--violet-300); margin-top: var(--space-2);">transition: 100ms ease</div>
+      </div>
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-5) var(--space-6); min-width: 200px;">
+        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1);">normal · 200ms</div>
+        <div style="font-size: 12px; color: var(--text-tertiary);">Dropdown open, badge change, panel slide</div>
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--violet-300); margin-top: var(--space-2);">transition: 200ms ease</div>
+      </div>
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-5) var(--space-6); min-width: 200px;">
+        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1);">slow · 300ms</div>
+        <div style="font-size: 12px; color: var(--text-tertiary);">Modal enter/exit, page transitions, skeleton fade</div>
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--violet-300); margin-top: var(--space-2);">transition: 300ms ease</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ GRID ═══ -->
+  <section class="section" id="grid">
+    <h2 class="section-title">Grid</h2>
+    <p class="section-desc">12-column grid with 24px gutters. Sidebar is fixed 220px. Content area: max-width 1100px. Component widths snap to grid columns.</p>
+    <div class="subsection">
+      <div class="subsection-title">12-column layout</div>
+      <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px;">
+        <div class="grid-cell" style="grid-column: span 12;">12 cols — full width (tables, pipeline view)</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-top: 8px;">
+        <div class="grid-cell" style="grid-column: span 8;">8 cols — main content</div>
+        <div class="grid-cell" style="grid-column: span 4;">4 cols — sidebar / chat</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-top: 8px;">
+        <div class="grid-cell" style="grid-column: span 4;">4 cols</div>
+        <div class="grid-cell" style="grid-column: span 4;">4 cols</div>
+        <div class="grid-cell" style="grid-column: span 4;">4 cols — stat cards</div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-top: 8px;">
+        <div class="grid-cell" style="grid-column: span 3;">3</div>
+        <div class="grid-cell" style="grid-column: span 3;">3</div>
+        <div class="grid-cell" style="grid-column: span 3;">3</div>
+        <div class="grid-cell" style="grid-column: span 3;">3 — kanban</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ BUTTONS ═══ -->
+  <section class="section" id="buttons">
+    <h2 class="section-title">Buttons</h2>
+    <p class="section-desc">Four variants × three sizes. The <strong>AI</strong> variant (violet) is reserved exclusively for AI-powered actions: RAG search, chatbot, scoring.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Primary — Sizes</div>
+      <div class="flex gap-3 items-center flex-wrap">
+        <button class="btn btn-primary btn-sm">+ Agregar creador</button>
+        <button class="btn btn-primary btn-md">+ Agregar creador</button>
+        <button class="btn btn-primary btn-lg">+ Agregar creador</button>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Secondary — Sizes</div>
+      <div class="flex gap-3 items-center flex-wrap">
+        <button class="btn btn-secondary btn-sm">Exportar CSV</button>
+        <button class="btn btn-secondary btn-md">Exportar CSV</button>
+        <button class="btn btn-secondary btn-lg">Exportar CSV</button>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Ghost</div>
+      <div class="flex gap-3 items-center flex-wrap">
+        <button class="btn btn-ghost btn-sm">Cancelar</button>
+        <button class="btn btn-ghost btn-md">Cancelar</button>
+        <button class="btn btn-ghost btn-lg">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Danger</div>
+      <div class="flex gap-3 items-center flex-wrap">
+        <button class="btn btn-danger btn-sm">Eliminar</button>
+        <button class="btn btn-danger btn-md">Eliminar creador</button>
+        <button class="btn btn-danger btn-lg">Eliminar campaña</button>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">AI — Violet accent (AI-powered actions only)</div>
+      <div class="flex gap-3 items-center flex-wrap">
+        <button class="btn btn-ai btn-sm">✦ Score</button>
+        <button class="btn btn-ai btn-md">✦ Buscar con IA</button>
+        <button class="btn btn-ai btn-lg">✦ Abrir asistente</button>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Disabled state</div>
+      <div class="flex gap-3 items-center flex-wrap">
+        <button class="btn btn-primary btn-md" disabled>+ Agregar creador</button>
+        <button class="btn btn-secondary btn-md" disabled>Exportar CSV</button>
+        <button class="btn btn-ai btn-md" disabled>✦ Buscar con IA</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ BADGES ═══ -->
+  <section class="section" id="badges">
+    <h2 class="section-title">Badges</h2>
+    <p class="section-desc">Status badges reflect the 9 lifecycle states. Filter chips appear as extracted parameters from RAG queries.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Status Badges — 9 States</div>
+      <div class="flex gap-2 flex-wrap">
+        <span class="badge" style="background: var(--status-prospecto-bg); color: var(--status-prospecto);">
+          <span class="badge-dot" style="background: var(--status-prospecto);"></span>Prospecto
+        </span>
+        <span class="badge" style="background: var(--status-contactado-bg); color: var(--status-contactado);">
+          <span class="badge-dot" style="background: var(--status-contactado);"></span>Contactado
+        </span>
+        <span class="badge" style="background: var(--status-confirmado-bg); color: var(--status-confirmado);">
+          <span class="badge-dot" style="background: var(--status-confirmado);"></span>Confirmado
+        </span>
+        <span class="badge" style="background: var(--status-en-brief-bg); color: var(--status-en-brief);">
+          <span class="badge-dot" style="background: var(--status-en-brief);"></span>En brief
+        </span>
+        <span class="badge" style="background: var(--status-contenido-enviado-bg); color: var(--status-contenido-enviado);">
+          <span class="badge-dot" style="background: var(--status-contenido-enviado);"></span>Contenido enviado
+        </span>
+        <span class="badge" style="background: var(--status-aprobado-bg); color: var(--status-aprobado);">
+          <span class="badge-dot" style="background: var(--status-aprobado);"></span>Aprobado
+        </span>
+        <span class="badge" style="background: var(--status-publicado-bg); color: var(--status-publicado);">
+          <span class="badge-dot" style="background: var(--status-publicado);"></span>Publicado
+        </span>
+        <span class="badge" style="background: var(--status-verificado-bg); color: var(--status-verificado);">
+          <span class="badge-dot" style="background: var(--status-verificado);"></span>Verificado
+        </span>
+        <span class="badge" style="background: var(--status-pagado-bg); color: var(--status-pagado);">
+          <span class="badge-dot" style="background: var(--status-pagado);"></span>Pagado
+        </span>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Filter Chips — RAG extracted parameters</div>
+      <div class="flex gap-2 flex-wrap">
+        <span class="chip">categoría: lifestyle <span class="chip-remove">×</span></span>
+        <span class="chip">seguidores: 10k–50k <span class="chip-remove">×</span></span>
+        <span class="chip">ciudad: Bogotá <span class="chip-remove">×</span></span>
+        <span class="chip">engagement: >5% <span class="chip-remove">×</span></span>
+        <span class="chip">estado: confirmado <span class="chip-remove">×</span></span>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Category Chips — passive</div>
+      <div class="flex gap-2 flex-wrap">
+        <span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Lifestyle</span>
+        <span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Fitness</span>
+        <span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Gastronomía</span>
+        <span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Diseño Gráfico</span>
+        <span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Moda</span>
+        <span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Viajes</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ INPUTS ═══ -->
+  <section class="section" id="inputs">
+    <h2 class="section-title">Inputs</h2>
+    <p class="section-desc">All inputs use <code>bg-elevated</code> background so they read as "lower" than the surface they sit on.</p>
+
+    <div class="flex gap-6 flex-wrap">
+      <div class="input-wrap">
+        <label class="input-label">Nombre del creador</label>
+        <input class="input" type="text" placeholder="Ej. María Fernández" />
+        <span class="input-hint">Tal como aparece en su perfil de Instagram</span>
+      </div>
+
+      <div class="input-wrap">
+        <label class="input-label">Instagram handle</label>
+        <input class="input" type="text" value="@mariafernandez_co" />
+      </div>
+
+      <div class="input-wrap">
+        <label class="input-label">Seguidores (con error)</label>
+        <input class="input input-error" type="text" value="abc,xyz" />
+        <span class="input-hint error">Debe ser un número válido. Ej: 287400</span>
+      </div>
+
+      <div class="input-wrap">
+        <label class="input-label">Campo deshabilitado</label>
+        <input class="input" type="text" value="Colombia" disabled />
+      </div>
+
+      <div class="input-wrap">
+        <label class="input-label">Categoría</label>
+        <select class="select">
+          <option>Lifestyle</option>
+          <option>Fitness</option>
+          <option>Gastronomía</option>
+          <option>Moda</option>
+          <option>Viajes</option>
+          <option>Diseño Gráfico</option>
+        </select>
+      </div>
+
+      <div class="input-wrap" style="max-width: 320px;">
+        <label class="input-label">Notas de campaña</label>
+        <textarea class="input" rows="3" placeholder="Observaciones sobre la colaboración..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ AVATARS ═══ -->
+  <section class="section" id="avatars">
+    <h2 class="section-title">Avatars</h2>
+    <p class="section-desc">Initials-based by default (no real photos stored). Four sizes. Can have a colored ring to indicate status.</p>
+    <div class="flex gap-6 items-center flex-wrap">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div class="avatar avatar-sm">MF</div>
+        <span style="font-size: 11px; color: var(--text-tertiary);">sm · 24px</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div class="avatar avatar-md">MF</div>
+        <span style="font-size: 11px; color: var(--text-tertiary);">md · 32px</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div class="avatar avatar-lg">MF</div>
+        <span style="font-size: 11px; color: var(--text-tertiary);">lg · 40px</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div class="avatar avatar-xl">MF</div>
+        <span style="font-size: 11px; color: var(--text-tertiary);">xl · 56px</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div class="avatar avatar-lg" style="border: 2px solid var(--status-publicado);">JA</div>
+        <span style="font-size: 11px; color: var(--text-tertiary);">status ring</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: var(--space-2);">
+        <div class="avatar avatar-lg" style="border: 2px solid var(--status-confirmado);">CR</div>
+        <span style="font-size: 11px; color: var(--text-tertiary);">confirmado</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SCORE BADGES ═══ -->
+  <section class="section" id="scores">
+    <h2 class="section-title">Score Badges</h2>
+    <p class="section-desc">Deterministic creator score (0–100) grouped into 4 letter grades. Score formula: engagement (40%) + follower scale (30%) + category fit (20%) + history (10%).</p>
+    <div class="flex gap-4 flex-wrap mt-4">
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-5); min-width: 140px; display: flex; flex-direction: column; gap: var(--space-2);">
+        <span class="score-badge score-a">A · 85–100</span>
+        <span style="font-size: 12px; color: var(--text-tertiary);">Top performer</span>
+        <span style="font-size: 11px; color: var(--text-tertiary);">Priorizar en brief</span>
+      </div>
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-5); min-width: 140px; display: flex; flex-direction: column; gap: var(--space-2);">
+        <span class="score-badge score-b">B · 65–84</span>
+        <span style="font-size: 12px; color: var(--text-tertiary);">Buen potencial</span>
+        <span style="font-size: 11px; color: var(--text-tertiary);">Incluir en campaña</span>
+      </div>
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-5); min-width: 140px; display: flex; flex-direction: column; gap: var(--space-2);">
+        <span class="score-badge score-c">C · 45–64</span>
+        <span style="font-size: 12px; color: var(--text-tertiary);">Moderado</span>
+        <span style="font-size: 11px; color: var(--text-tertiary);">Revisar antes de confirmar</span>
+      </div>
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-5); min-width: 140px; display: flex; flex-direction: column; gap: var(--space-2);">
+        <span class="score-badge score-d">D · 0–44</span>
+        <span style="font-size: 12px; color: var(--text-tertiary);">Bajo</span>
+        <span style="font-size: 11px; color: var(--text-tertiary);">No priorizar</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ALERTS ═══ -->
+  <section class="section" id="alerts">
+    <h2 class="section-title">Alerts</h2>
+    <p class="section-desc">Four semantic alert types. Alerts are temporary feedback — they are not a substitute for inline validation.</p>
+    <div style="display: flex; flex-direction: column; gap: var(--space-3); max-width: 600px;">
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <div class="alert-body">
+          <div class="alert-title">Embeddings actualizados</div>
+          <div>El pipeline de vectorización procesó 47 creadores nuevos. Próxima ejecución en 5 min.</div>
+        </div>
+      </div>
+      <div class="alert alert-success">
+        <span class="alert-icon">✓</span>
+        <div class="alert-body">
+          <div class="alert-title">CSV importado correctamente</div>
+          <div>287 creadores procesados · 3 filas omitidas por datos incompletos.</div>
+        </div>
+      </div>
+      <div class="alert alert-warning">
+        <span class="alert-icon">⚠</span>
+        <div class="alert-body">
+          <div class="alert-title">Engagement rate fuera de rango</div>
+          <div>12 creadores tienen un engagement_rate > 30%. Verifica que el dato sea correcto antes de confirmar.</div>
+        </div>
+      </div>
+      <div class="alert alert-error">
+        <span class="alert-icon">✕</span>
+        <div class="alert-body">
+          <div class="alert-title">Error al cambiar estado</div>
+          <div>No se pudo mover a "Publicado" sin una URL de post registrada. Agrega el enlace primero.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PIPELINE STATS ═══ -->
+  <section class="section" id="pipeline">
+    <h2 class="section-title">Pipeline Stats</h2>
+    <p class="section-desc">One card per lifecycle state. Displayed at the top of the campaign detail view. Counts update in real time via optimistic UI.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: var(--space-3);">
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-prospecto);">Prospecto</div>
+        <div class="stat-count" style="color: var(--status-prospecto);">42</div>
+        <div class="stat-meta">sin contactar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-contactado);">Contactado</div>
+        <div class="stat-count" style="color: var(--status-contactado);">31</div>
+        <div class="stat-meta">esperando resp.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-confirmado);">Confirmado</div>
+        <div class="stat-count" style="color: var(--status-confirmado);">58</div>
+        <div class="stat-meta">en campaña</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-en-brief);">En brief</div>
+        <div class="stat-count" style="color: var(--status-en-brief);">23</div>
+        <div class="stat-meta">brief enviado</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-contenido-enviado);">Cont. enviado</div>
+        <div class="stat-count" style="color: var(--status-contenido-enviado);">19</div>
+        <div class="stat-meta">revisar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-aprobado);">Aprobado</div>
+        <div class="stat-count" style="color: var(--status-aprobado);">11</div>
+        <div class="stat-meta">listo para publicar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-publicado);">Publicado</div>
+        <div class="stat-count" style="color: var(--status-publicado);">67</div>
+        <div class="stat-meta">en vivo</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-verificado);">Verificado</div>
+        <div class="stat-count" style="color: var(--status-verificado);">54</div>
+        <div class="stat-meta">métricas OK</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" style="color: var(--status-pagado);">Pagado</div>
+        <div class="stat-count" style="color: var(--status-pagado);">49</div>
+        <div class="stat-meta">cierre completo</div>
+      </div>
+    </div>
+    <!-- Total bar -->
+    <div style="margin-top: var(--space-4); background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2);">
+        <span style="font-size: 13px; color: var(--text-secondary);">Progreso total de campaña</span>
+        <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">354 / 354 creadores</span>
+      </div>
+      <div style="height: 8px; background: var(--bg-elevated); border-radius: var(--radius-full); overflow: hidden; display: flex;">
+        <div style="width: 11.9%; background: var(--status-prospecto); opacity: 0.8;"></div>
+        <div style="width: 8.8%; background: var(--status-contactado); opacity: 0.8;"></div>
+        <div style="width: 16.4%; background: var(--status-confirmado); opacity: 0.8;"></div>
+        <div style="width: 6.5%; background: var(--status-en-brief); opacity: 0.8;"></div>
+        <div style="width: 5.4%; background: var(--status-contenido-enviado); opacity: 0.8;"></div>
+        <div style="width: 3.1%; background: var(--status-aprobado); opacity: 0.8;"></div>
+        <div style="width: 18.9%; background: var(--status-publicado); opacity: 0.8;"></div>
+        <div style="width: 15.3%; background: var(--status-verificado); opacity: 0.8;"></div>
+        <div style="width: 13.8%; background: var(--status-pagado); opacity: 0.8;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DATA TABLE ═══ -->
+  <section class="section" id="table">
+    <h2 class="section-title">DataTable — Creator Directory</h2>
+    <p class="section-desc">Dense, keyboard-navigable table. Sortable columns. Row hover reveals inline actions. Status column uses badge component.</p>
+
+    <!-- Toolbar -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3);">
+      <div class="flex gap-2 items-center">
+        <input class="input" style="width: 240px;" type="text" placeholder="Buscar por nombre o @handle..." />
+        <select class="select" style="width: 160px;">
+          <option>Todas las categorías</option>
+          <option>Lifestyle</option>
+          <option>Fitness</option>
+        </select>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-ai btn-md">✦ Búsqueda semántica</button>
+        <button class="btn btn-primary btn-md">+ Creador</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Creador</th>
+            <th>@Handle</th>
+            <th>Seguidores</th>
+            <th>Engagement</th>
+            <th>Categoría</th>
+            <th>Score</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="avatar avatar-sm">MF</div></td>
+            <td class="td-primary">María Fernández</td>
+            <td class="td-mono">@mariafernandez_co</td>
+            <td class="td-mono">287,400</td>
+            <td class="td-mono">4.60%</td>
+            <td><span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Lifestyle</span></td>
+            <td><span class="score-badge score-a">A 92</span></td>
+            <td><span class="badge" style="background: var(--status-publicado-bg); color: var(--status-publicado);"><span class="badge-dot" style="background: var(--status-publicado);"></span>Publicado</span></td>
+            <td><button class="btn btn-ghost btn-sm" style="opacity: 0;">···</button></td>
+          </tr>
+          <tr>
+            <td><div class="avatar avatar-sm">JA</div></td>
+            <td class="td-primary">Juan Arango</td>
+            <td class="td-mono">@juanarango</td>
+            <td class="td-mono">53,200</td>
+            <td class="td-mono">7.82%</td>
+            <td><span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Fitness</span></td>
+            <td><span class="score-badge score-b">B 78</span></td>
+            <td><span class="badge" style="background: var(--status-confirmado-bg); color: var(--status-confirmado);"><span class="badge-dot" style="background: var(--status-confirmado);"></span>Confirmado</span></td>
+            <td><button class="btn btn-ghost btn-sm">···</button></td>
+          </tr>
+          <tr>
+            <td><div class="avatar avatar-sm">CR</div></td>
+            <td class="td-primary">Camila Rodríguez</td>
+            <td class="td-mono">@camirodstylist</td>
+            <td class="td-mono">121,700</td>
+            <td class="td-mono">3.21%</td>
+            <td><span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Moda</span></td>
+            <td><span class="score-badge score-b">B 65</span></td>
+            <td><span class="badge" style="background: var(--status-en-brief-bg); color: var(--status-en-brief);"><span class="badge-dot" style="background: var(--status-en-brief);"></span>En brief</span></td>
+            <td><button class="btn btn-ghost btn-sm">···</button></td>
+          </tr>
+          <tr>
+            <td><div class="avatar avatar-sm">LG</div></td>
+            <td class="td-primary">Luis García</td>
+            <td class="td-mono">@luisgarciafood</td>
+            <td class="td-mono">18,400</td>
+            <td class="td-mono">9.14%</td>
+            <td><span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Gastronomía</span></td>
+            <td><span class="score-badge score-a">A 88</span></td>
+            <td><span class="badge" style="background: var(--status-pagado-bg); color: var(--status-pagado);"><span class="badge-dot" style="background: var(--status-pagado);"></span>Pagado</span></td>
+            <td><button class="btn btn-ghost btn-sm">···</button></td>
+          </tr>
+          <tr>
+            <td><div class="avatar avatar-sm">AS</div></td>
+            <td class="td-primary">Andrea Soto</td>
+            <td class="td-mono">@andreasoto.v</td>
+            <td class="td-mono">9,800</td>
+            <td class="td-mono">11.40%</td>
+            <td><span class="badge" style="background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border-default);">Viajes</span></td>
+            <td><span class="score-badge score-c">C 53</span></td>
+            <td><span class="badge" style="background: var(--status-contactado-bg); color: var(--status-contactado);"><span class="badge-dot" style="background: var(--status-contactado);"></span>Contactado</span></td>
+            <td><button class="btn btn-ghost btn-sm">···</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Pagination -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: var(--space-3);">
+      <span style="font-size: 12px; color: var(--text-tertiary);">Mostrando 5 de 287 creadores</span>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary btn-sm" disabled>← Anterior</button>
+        <button class="btn btn-secondary btn-sm">Siguiente →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ KANBAN ═══ -->
+  <section class="section" id="kanban">
+    <h2 class="section-title">Kanban — Campaign Pipeline View</h2>
+    <p class="section-desc">Each column represents a lifecycle state. Cards are draggable. Status change triggers an AuditLog entry atomically.</p>
+    <div style="display: flex; gap: var(--space-4); overflow-x: auto; padding-bottom: var(--space-4);">
+
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <span class="kanban-col-title" style="color: var(--status-contactado);">Contactado</span>
+          <span class="kanban-count">31</span>
+        </div>
+        <div class="kanban-card">
+          <div class="flex items-center gap-2">
+            <div class="avatar avatar-sm">JM</div>
+            <div>
+              <div class="kanban-card-name">Juliana Moreno</div>
+              <div class="kanban-card-meta">@julianamoreno_</div>
+            </div>
+          </div>
+          <div class="kanban-card-footer">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">45,200 seg.</span>
+            <span class="score-badge score-b" style="font-size: 10px; padding: 1px 6px;">B 71</span>
+          </div>
+        </div>
+        <div class="kanban-card">
+          <div class="flex items-center gap-2">
+            <div class="avatar avatar-sm">DP</div>
+            <div>
+              <div class="kanban-card-name">Diego Parra</div>
+              <div class="kanban-card-meta">@diegop.foto</div>
+            </div>
+          </div>
+          <div class="kanban-card-footer">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">12,800 seg.</span>
+            <span class="score-badge score-a" style="font-size: 10px; padding: 1px 6px;">A 85</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <span class="kanban-col-title" style="color: var(--status-confirmado);">Confirmado</span>
+          <span class="kanban-count">58</span>
+        </div>
+        <div class="kanban-card">
+          <div class="flex items-center gap-2">
+            <div class="avatar avatar-sm">JA</div>
+            <div>
+              <div class="kanban-card-name">Juan Arango</div>
+              <div class="kanban-card-meta">@juanarango</div>
+            </div>
+          </div>
+          <div class="kanban-card-footer">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">53,200 seg.</span>
+            <span class="score-badge score-b" style="font-size: 10px; padding: 1px 6px;">B 78</span>
+          </div>
+        </div>
+        <div class="kanban-card" style="border: 1px dashed var(--border-default); opacity: 0.4; display: flex; align-items: center; justify-content: center; height: 60px;">
+          <span style="font-size: 12px; color: var(--text-tertiary);">+ 57 más</span>
+        </div>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <span class="kanban-col-title" style="color: var(--status-en-brief);">En brief</span>
+          <span class="kanban-count">23</span>
+        </div>
+        <div class="kanban-card">
+          <div class="flex items-center gap-2">
+            <div class="avatar avatar-sm">CR</div>
+            <div>
+              <div class="kanban-card-name">Camila Rodríguez</div>
+              <div class="kanban-card-meta">@camirodstylist</div>
+            </div>
+          </div>
+          <div class="kanban-card-footer">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">121,700 seg.</span>
+            <span class="score-badge score-b" style="font-size: 10px; padding: 1px 6px;">B 65</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="kanban-col">
+        <div class="kanban-col-header">
+          <span class="kanban-col-title" style="color: var(--status-publicado);">Publicado</span>
+          <span class="kanban-count">67</span>
+        </div>
+        <div class="kanban-card" style="border-color: var(--status-publicado); background: rgba(16,185,129,0.04);">
+          <div class="flex items-center gap-2">
+            <div class="avatar avatar-sm" style="border-color: var(--status-publicado);">MF</div>
+            <div>
+              <div class="kanban-card-name">María Fernández</div>
+              <div class="kanban-card-meta">@mariafernandez_co</div>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-2); font-size: 11px; color: var(--text-tertiary);">
+            <span style="font-family: var(--font-mono);">↗ 12,400 impresiones</span>
+          </div>
+          <div class="kanban-card-footer">
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">287,400 seg.</span>
+            <span class="score-badge score-a" style="font-size: 10px; padding: 1px 6px;">A 92</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ RAG SEARCH ═══ -->
+  <section class="section" id="rag">
+    <h2 class="section-title">RAG Search</h2>
+    <p class="section-desc">Natural language search powered by pgvector HNSW. LLM extracts hard filters → SQL reduces corpus → vector search ranks by semantic similarity. Violet accent signals AI capability.</p>
+
+    <div style="max-width: 640px; display: flex; flex-direction: column; gap: var(--space-4);">
+
+      <!-- Idle state -->
+      <div>
+        <div class="subsection-title">Idle</div>
+        <div class="rag-search">
+          <div class="rag-search-top">
+            <span class="rag-search-icon">✦</span>
+            <input class="rag-search-input" placeholder="Buscar creadores... ej: lifestyle mujeres Bogotá 10k-50k seg." readonly />
+            <button class="btn btn-ghost btn-sm" style="color: var(--text-tertiary); padding: 0 8px;">⌘K</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active with extracted chips -->
+      <div>
+        <div class="subsection-title">Active — query parsed, chips extracted</div>
+        <div class="rag-search active">
+          <div class="rag-search-top">
+            <span class="rag-search-icon">✦</span>
+            <input class="rag-search-input" value="lifestyle mujeres Bogotá entre 10 y 50 mil seguidores" readonly />
+            <button class="btn btn-ghost btn-sm" style="color: var(--text-tertiary); padding: 0 8px;">✕</button>
+          </div>
+          <div class="rag-chips">
+            <span class="chip">categoría: lifestyle <span class="chip-remove">×</span></span>
+            <span class="chip">ciudad: Bogotá <span class="chip-remove">×</span></span>
+            <span class="chip">seguidores: 10k–50k <span class="chip-remove">×</span></span>
+          </div>
+        </div>
+        <!-- Results summary -->
+        <div style="display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-3); font-size: 12px; color: var(--text-tertiary);">
+          <span style="color: var(--violet-400);">✦</span>
+          <span>34 creadores encontrados · filtros aplicados: 3 · búsqueda semántica sobre 89 resultados</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ CHAT UI ═══ -->
+  <section class="section" id="chat">
+    <h2 class="section-title">Chat UI — Asistente IA</h2>
+    <p class="section-desc">Powered by Vercel AI SDK <code>useChat</code>. Streaming responses. Tool calls (<code>searchCreators</code>, <code>queryCampaign</code>, <code>findSimilarCreators</code>) shown inline with violet accent. Stateless server.</p>
+
+    <div style="max-width: 560px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-xl); overflow: hidden;">
+
+      <!-- Header -->
+      <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--border-default); background: var(--bg-elevated);">
+        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(124,92,252,0.2); border: 1px solid rgba(124,92,252,0.4); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--violet-400);">✦</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Asistente RealUp</div>
+          <div style="font-size: 11px; color: var(--text-tertiary);">IA · pgvector · gpt-4o-mini</div>
+        </div>
+        <div style="margin-left: auto; display: flex; gap: var(--space-2);">
+          <button class="btn btn-ghost btn-sm" style="font-size: 16px; padding: 0 8px;">⤢</button>
+          <button class="btn btn-ghost btn-sm" style="font-size: 16px; padding: 0 8px;">✕</button>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div style="padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); min-height: 340px;">
+
+        <!-- Assistant greeting -->
+        <div style="display: flex; gap: var(--space-2); align-items: flex-start;">
+          <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(124,92,252,0.2); border: 1px solid rgba(124,92,252,0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--violet-400); flex-shrink: 0; margin-top: 2px;">✦</div>
+          <div>
+            <div class="chat-bubble chat-assistant">¡Hola! Puedo ayudarte a encontrar creadores, analizar campañas o buscar perfiles similares. ¿Qué necesitas?</div>
+            <div class="chat-meta" style="margin-left: 4px;">hace 2 min</div>
+          </div>
+        </div>
+
+        <!-- User message -->
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px;">
+          <div class="chat-bubble chat-user">Dame los mejores creadores de fitness en Medellín con más de 20 mil seguidores que no estén en la campaña actual</div>
+          <div class="chat-meta">tú · hace 1 min</div>
+        </div>
+
+        <!-- Tool call -->
+        <div style="display: flex; gap: var(--space-2); align-items: flex-start;">
+          <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(124,92,252,0.2); border: 1px solid rgba(124,92,252,0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--violet-400); flex-shrink: 0; margin-top: 2px;">✦</div>
+          <div style="flex: 1;">
+            <div class="chat-tool-call">
+              ⚙ searchCreators({ category: "fitness", city: "Medellín", min_followers: 20000, exclude_campaign_id: "camp_001" })
+            </div>
+            <div class="chat-bubble chat-assistant">Encontré <strong style="color: var(--text-primary);">8 creadores</strong> que coinciden. Aquí los 3 mejores por score:</div>
+            <!-- Mini result cards -->
+            <div style="display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-2);">
+              <div style="background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); display: flex; align-items: center; justify-content: space-between;">
+                <div class="flex items-center gap-2">
+                  <div class="avatar avatar-sm">AS</div>
+                  <div>
+                    <div style="font-size: 12px; font-weight: 500; color: var(--text-primary);">Andrés Salcedo</div>
+                    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary);">@andressfit · 67,200 seg.</div>
+                  </div>
+                </div>
+                <span class="score-badge score-a" style="font-size: 10px;">A 91</span>
+              </div>
+              <div style="background: var(--bg-elevated); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); display: flex; align-items: center; justify-content: space-between;">
+                <div class="flex items-center gap-2">
+                  <div class="avatar avatar-sm">VR</div>
+                  <div>
+                    <div style="font-size: 12px; font-weight: 500; color: var(--text-primary);">Valentina Ríos</div>
+                    <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary);">@valrios.fit · 34,800 seg.</div>
+                  </div>
+                </div>
+                <span class="score-badge score-a" style="font-size: 10px;">A 87</span>
+              </div>
+            </div>
+            <div class="chat-meta" style="margin-top: 4px; margin-left: 4px;">hace 30 seg.</div>
+          </div>
+        </div>
+
+        <!-- Streaming indicator -->
+        <div style="display: flex; gap: var(--space-2); align-items: flex-start;">
+          <div style="width: 24px; height: 24px; border-radius: 50%; background: rgba(124,92,252,0.2); border: 1px solid rgba(124,92,252,0.3); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--violet-400); flex-shrink: 0; margin-top: 2px;">✦</div>
+          <div class="chat-bubble chat-assistant" style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 12px; color: var(--text-tertiary);">Buscando más resultados</span>
+            <span style="display: flex; gap: 3px;">
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: var(--violet-400); animation: pulse 1s infinite;"></span>
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: var(--violet-400); animation: pulse 1s 0.2s infinite;"></span>
+              <span style="width: 5px; height: 5px; border-radius: 50%; background: var(--violet-400); animation: pulse 1s 0.4s infinite;"></span>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Input -->
+      <div style="padding: var(--space-3) var(--space-4); border-top: 1px solid var(--border-default);">
+        <div class="chat-input-row">
+          <input class="chat-input" placeholder="Pregunta algo sobre tus creadores..." />
+          <button class="btn btn-ai btn-sm" style="border-radius: var(--radius-full); padding: 0 14px;">↑</button>
+        </div>
+        <div style="font-size: 10px; color: var(--text-tertiary); margin-top: var(--space-2); text-align: center;">
+          Powered by gpt-4o-mini + pgvector · No almacena la conversación
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div style="border-top: 1px solid var(--border-default); padding-top: var(--space-8); margin-top: var(--space-8); display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-weight: 600; color: var(--text-primary);">Orbit Design System</div>
+      <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 2px;">RealUp · Crowdposting Campaign Management · v1.0 · 2026-04-10</div>
+    </div>
+    <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary);">
+      Next.js · Tailwind · shadcn/ui · Fastify · Supabase · pgvector
+    </div>
+  </div>
+
+</main>
+
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+</style>
+
+<script>
+  // Smooth scroll for sidebar links
+  document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelectorAll('.sidebar a').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    });
+  });
+
+  // Highlight active section on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.sidebar a').forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+
+  // Row hover for table action buttons
+  document.querySelectorAll('tbody tr').forEach(row => {
+    const btn = row.querySelector('.btn-ghost');
+    if (btn) {
+      btn.style.opacity = '0';
+      row.addEventListener('mouseenter', () => btn.style.opacity = '1');
+      row.addEventListener('mouseleave', () => btn.style.opacity = '0');
+    }
+  });
+</script>
+
+</body>
+</html>
