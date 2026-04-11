@@ -1,19 +1,19 @@
 "use client";
 
+import { Calendar, LayoutGrid, List } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { LayoutGrid, List, Calendar, ExternalLink } from "lucide-react";
+import { Topbar } from "@/components/layout/topbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Topbar } from "@/components/layout/topbar";
-import { PipelineStatsBar } from "@/features/campaigns/pipeline-stats";
-import { AssignmentsTable } from "@/features/campaigns/assignments-table";
 import { AssignmentsKanban } from "@/features/campaigns/assignments-kanban";
+import { AssignmentsTable } from "@/features/campaigns/assignments-table";
+import { PipelineStatsBar } from "@/features/campaigns/pipeline-stats";
+import type { CampaignStatus } from "@/features/campaigns/types";
 import { useCampaign } from "@/features/campaigns/use-campaign";
 import { useCampaignRealtime } from "@/features/campaigns/use-campaign-realtime";
-import type { CampaignStatus } from "@/features/campaigns/types";
 
 const CAMPAIGN_STATUS_VARIANT: Record<CampaignStatus, "default" | "primary" | "ai"> = {
-	draft:  "default",
+	draft: "default",
 	active: "primary",
 	closed: "ai",
 };
@@ -21,7 +21,9 @@ const CAMPAIGN_STATUS_VARIANT: Record<CampaignStatus, "default" | "primary" | "a
 function fmt(dateStr: string | null) {
 	if (!dateStr) return null;
 	return new Date(dateStr).toLocaleDateString("es-CO", {
-		day: "numeric", month: "short", year: "numeric",
+		day: "numeric",
+		month: "short",
+		year: "numeric",
 	});
 }
 
@@ -68,7 +70,12 @@ export default function CampaignDetailPage() {
 		return (
 			<div className="flex flex-col items-center justify-center h-full py-24 text-center">
 				<p className="text-sm font-medium text-text-primary">Campaña no encontrada</p>
-				<Button variant="ghost" size="sm" className="mt-3" onClick={() => router.push("/campaigns")}>
+				<Button
+					variant="ghost"
+					size="sm"
+					className="mt-3"
+					onClick={() => router.push("/campaigns")}
+				>
 					Volver a campañas
 				</Button>
 			</div>
@@ -76,7 +83,7 @@ export default function CampaignDetailPage() {
 	}
 
 	const startFmt = fmt(campaign.startDate);
-	const endFmt   = fmt(campaign.endDate);
+	const endFmt = fmt(campaign.endDate);
 
 	return (
 		<>
@@ -86,9 +93,7 @@ export default function CampaignDetailPage() {
 				description={campaign.brand}
 				actions={
 					<div className="flex items-center gap-2">
-						<Badge variant={CAMPAIGN_STATUS_VARIANT[campaign.status]}>
-							{campaign.status}
-						</Badge>
+						<Badge variant={CAMPAIGN_STATUS_VARIANT[campaign.status]}>{campaign.status}</Badge>
 						{startFmt && endFmt && (
 							<span className="flex items-center gap-1 text-xs text-text-tertiary">
 								<Calendar size={12} />
@@ -132,15 +137,9 @@ export default function CampaignDetailPage() {
 
 				{/* M2-20 / M2-21 — Assignments view */}
 				{view === "table" ? (
-					<AssignmentsTable
-						assignments={campaign.assignments}
-						campaignId={campaign.id}
-					/>
+					<AssignmentsTable assignments={campaign.assignments} campaignId={campaign.id} />
 				) : (
-					<AssignmentsKanban
-						assignments={campaign.assignments}
-						campaignId={campaign.id}
-					/>
+					<AssignmentsKanban assignments={campaign.assignments} campaignId={campaign.id} />
 				)}
 			</div>
 		</>
