@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AssignmentsKanban } from "@/features/campaigns/assignments-kanban";
 import { AssignmentsTable } from "@/features/campaigns/assignments-table";
+import { CampaignAuditFeed } from "@/features/campaigns/campaign-audit-feed";
 import { PipelineStatsBar } from "@/features/campaigns/pipeline-stats";
 import type { CampaignStatus } from "@/features/campaigns/types";
 import { useCampaign } from "@/features/campaigns/use-campaign";
@@ -141,6 +142,14 @@ export default function CampaignDetailPage() {
 				) : (
 					<AssignmentsKanban assignments={campaign.assignments} campaignId={campaign.id} />
 				)}
+
+				{/* M3-05 — Campaign audit log */}
+				<div className="rounded-xl bg-bg-surface ring-1 ring-border-default p-5">
+					<h2 className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-4">
+						Historial de campaña
+					</h2>
+					<CampaignAuditFeed campaignId={campaign.id} />
+				</div>
 			</div>
 		</>
 	);

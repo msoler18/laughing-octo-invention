@@ -22,6 +22,19 @@ export const ASSIGNMENT_STATUSES: AssignmentStatus[] = [
 	"pagado",
 ];
 
+// M3-01 — mirrors server VALID_TRANSITIONS
+export const VALID_TRANSITIONS: Record<AssignmentStatus, AssignmentStatus[]> = {
+	prospecto: ["contactado"],
+	contactado: ["confirmado", "prospecto"],
+	confirmado: ["en_brief", "contactado"],
+	en_brief: ["contenido_enviado", "confirmado"],
+	contenido_enviado: ["aprobado", "en_brief"],
+	aprobado: ["publicado", "contenido_enviado"],
+	publicado: ["verificado"],
+	verificado: ["pagado", "publicado"],
+	pagado: [],
+};
+
 export interface PipelineStats {
 	totalAssigned: number;
 	prospecto: number;
