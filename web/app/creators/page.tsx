@@ -1,16 +1,16 @@
 "use client";
 
+import { ChevronLeft, ChevronRight, Plus, Upload } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Upload, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Topbar } from "@/components/layout/topbar";
-import { CreatorsTable } from "@/features/creators/creators-table";
+import { Button } from "@/components/ui/button";
 import { CreatorsFiltersPanel } from "@/features/creators/creators-filters";
+import { CreatorsTable } from "@/features/creators/creators-table";
 import { ImportCsvDialog } from "@/features/creators/import-csv-dialog";
-import { useCreators } from "@/features/creators/use-creators";
 import type { CreatorsFilters } from "@/features/creators/types";
+import { useCreators } from "@/features/creators/use-creators";
 
 export default function CreatorsPage() {
 	const router = useRouter();
@@ -28,7 +28,7 @@ export default function CreatorsPage() {
 	const { data, isLoading, isError, refetch } = useCreators(filters);
 
 	const pagination = data?.pagination;
-	const rows       = data?.data ?? [];
+	const rows = data?.data ?? [];
 
 	function setPage(next: number) {
 		setFilters((f) => ({ ...f, page: next }));
@@ -40,25 +40,15 @@ export default function CreatorsPage() {
 			<Topbar
 				title="Creadores"
 				description={
-					pagination
-						? `${pagination.total.toLocaleString("es-CO")} creadores en total`
-						: undefined
+					pagination ? `${pagination.total.toLocaleString("es-CO")} creadores en total` : undefined
 				}
 				actions={
 					<>
-						<Button
-							variant="secondary"
-							size="sm"
-							onClick={() => setImportOpen(true)}
-						>
+						<Button variant="secondary" size="sm" onClick={() => setImportOpen(true)}>
 							<Upload size={14} />
 							Importar CSV
 						</Button>
-						<Button
-							variant="primary"
-							size="sm"
-							onClick={() => router.push("/creators/new")}
-						>
+						<Button variant="primary" size="sm" onClick={() => router.push("/creators/new")}>
 							<Plus size={14} />
 							Nuevo creador
 						</Button>
@@ -114,11 +104,7 @@ export default function CreatorsPage() {
 			</div>
 
 			{/* M2-10 — Import CSV dialog */}
-			<ImportCsvDialog
-				open={importOpen}
-				onOpenChange={setImportOpen}
-				onSuccess={() => refetch()}
-			/>
+			<ImportCsvDialog open={importOpen} onOpenChange={setImportOpen} onSuccess={() => refetch()} />
 		</>
 	);
 }

@@ -4,11 +4,14 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const Sheet        = DialogPrimitive.Root;
+export const Sheet = DialogPrimitive.Root;
 export const SheetTrigger = DialogPrimitive.Trigger;
-export const SheetClose   = DialogPrimitive.Close;
+export const SheetClose = DialogPrimitive.Close;
 
-function SheetOverlay({ className, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>) {
+function SheetOverlay({
+	className,
+	...props
+}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>) {
 	return (
 		<DialogPrimitive.Overlay
 			className={cn("fixed inset-0 z-50 bg-black/60 backdrop-blur-sm", className)}
@@ -32,7 +35,7 @@ export function SheetContent({
 				className={cn(
 					"fixed inset-y-0 z-50 flex w-96 flex-col bg-bg-surface ring-1 ring-border-default shadow-4",
 					side === "right" ? "right-0" : "left-0",
-					className,
+					className
 				)}
 				{...props}
 			>
@@ -50,7 +53,10 @@ export function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDi
 	return <div className={cn("border-b border-border-default px-6 py-4", className)} {...props} />;
 }
 
-export function SheetTitle({ className, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>) {
+export function SheetTitle({
+	className,
+	...props
+}: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>) {
 	return (
 		<DialogPrimitive.Title
 			className={cn("text-sm font-semibold text-text-primary", className)}

@@ -1,11 +1,25 @@
 export type CampaignStatus = "draft" | "active" | "closed";
 export type AssignmentStatus =
-	| "prospecto" | "contactado" | "confirmado" | "en_brief"
-	| "contenido_enviado" | "aprobado" | "publicado" | "verificado" | "pagado";
+	| "prospecto"
+	| "contactado"
+	| "confirmado"
+	| "en_brief"
+	| "contenido_enviado"
+	| "aprobado"
+	| "publicado"
+	| "verificado"
+	| "pagado";
 
 export const ASSIGNMENT_STATUSES: AssignmentStatus[] = [
-	"prospecto", "contactado", "confirmado", "en_brief",
-	"contenido_enviado", "aprobado", "publicado", "verificado", "pagado",
+	"prospecto",
+	"contactado",
+	"confirmado",
+	"en_brief",
+	"contenido_enviado",
+	"aprobado",
+	"publicado",
+	"verificado",
+	"pagado",
 ];
 
 export interface PipelineStats {

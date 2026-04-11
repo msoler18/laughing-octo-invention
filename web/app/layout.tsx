@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Providers } from "./providers";
-import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -28,24 +28,21 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html
-			lang="es"
-			className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
-		>
+		<html lang="es" className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}>
 			<body className="h-full bg-bg-page text-text-primary">
 				<Providers>
 					{/* Fixed sidebar — 240px */}
 					<Sidebar />
 
 					{/* Main content area — offset by sidebar width */}
-					<div className="pl-60 flex flex-col min-h-full">
-						{children}
-					</div>
+					<div className="pl-60 flex flex-col min-h-full">{children}</div>
 				</Providers>
 				<Toaster
 					theme="dark"
 					position="bottom-right"
-					toastOptions={{ className: "!bg-bg-elevated !text-text-primary !ring-1 !ring-border-default" }}
+					toastOptions={{
+						className: "!bg-bg-elevated !text-text-primary !ring-1 !ring-border-default",
+					}}
 				/>
 			</body>
 		</html>

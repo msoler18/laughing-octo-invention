@@ -12,19 +12,15 @@ interface AuditEvent {
 }
 
 const ACTION_LABELS: Record<AuditEvent["action"], string> = {
-	created:        "Creado",
-	updated:        "Actualizado",
+	created: "Creado",
+	updated: "Actualizado",
 	status_changed: "Estado cambiado",
-	deleted:        "Eliminado",
+	deleted: "Eliminado",
 };
 
 export function AuditFeed({ events }: { events: AuditEvent[] }) {
 	if (events.length === 0) {
-		return (
-			<p className="text-xs text-text-tertiary py-4 text-center">
-				Sin historial de cambios.
-			</p>
-		);
+		return <p className="text-xs text-text-tertiary py-4 text-center">Sin historial de cambios.</p>;
 	}
 
 	return (
@@ -39,9 +35,7 @@ export function AuditFeed({ events }: { events: AuditEvent[] }) {
 							<span className="font-medium text-text-primary">
 								{ACTION_LABELS[e.action]}
 								{e.fieldName && (
-									<span className="ml-1 font-mono text-text-tertiary">
-										{e.fieldName}
-									</span>
+									<span className="ml-1 font-mono text-text-tertiary">{e.fieldName}</span>
 								)}
 							</span>
 							<time

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { getSupabaseClient } from "@/lib/supabase-client";
 
 /** Subscribes to campaign_creators changes for the given campaign via
@@ -28,7 +28,7 @@ export function useCampaignRealtime(campaignId: string) {
 				},
 				() => {
 					queryClient.invalidateQueries({ queryKey: ["campaign", campaignId] });
-				},
+				}
 			)
 			.subscribe();
 

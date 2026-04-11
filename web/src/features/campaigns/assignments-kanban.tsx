@@ -1,9 +1,15 @@
 "use client";
 
-import { DndContext, DragOverlay, useDraggable, useDroppable, type DragEndEvent } from "@dnd-kit/core";
+import {
+	DndContext,
+	type DragEndEvent,
+	DragOverlay,
+	useDraggable,
+	useDroppable,
+} from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
-import { Badge, statusVariant, STATUS_LABELS } from "@/components/ui/badge";
+import { Badge, STATUS_LABELS, statusVariant } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ASSIGNMENT_STATUSES, type Assignment, type AssignmentStatus } from "./types";
 import { useUpdateAssignmentStatus } from "./use-campaign";
@@ -27,14 +33,15 @@ function KanbanCard({ assignment, isDragging }: { assignment: Assignment; isDrag
 			className={cn(
 				"rounded-lg bg-bg-elevated ring-1 ring-border-default p-3 cursor-grab active:cursor-grabbing",
 				"select-none touch-none",
-				isDragging && "opacity-50",
+				isDragging && "opacity-50"
 			)}
 		>
 			<p className="text-xs font-medium text-text-primary truncate">{assignment.fullName}</p>
 			<p className="text-xs text-text-tertiary font-mono truncate">@{assignment.instagramHandle}</p>
 			{assignment.score && (
 				<p className="mt-1.5 text-xs font-mono text-text-tertiary">
-					Score: <span className="text-text-secondary">{parseFloat(assignment.score).toFixed(0)}</span>
+					Score:{" "}
+					<span className="text-text-secondary">{parseFloat(assignment.score).toFixed(0)}</span>
 				</p>
 			)}
 		</div>
@@ -67,15 +74,13 @@ function KanbanColumn({
 				ref={setNodeRef}
 				className={cn(
 					"flex flex-1 flex-col gap-2 rounded-lg p-2 min-h-24 transition-colors",
-					isOver ? "bg-blue-400/10 ring-1 ring-blue-400/30" : "bg-bg-surface ring-1 ring-border-default",
+					isOver
+						? "bg-blue-400/10 ring-1 ring-blue-400/30"
+						: "bg-bg-surface ring-1 ring-border-default"
 				)}
 			>
 				{assignments.map((a) => (
-					<KanbanCard
-						key={a.creatorId}
-						assignment={a}
-						isDragging={activeId === a.creatorId}
-					/>
+					<KanbanCard key={a.creatorId} assignment={a} isDragging={activeId === a.creatorId} />
 				))}
 				{assignments.length === 0 && (
 					<p className="text-center text-xs text-text-tertiary py-4">Sin creadores</p>
@@ -98,12 +103,10 @@ export function AssignmentsKanban({
 	const { mutate } = useUpdateAssignmentStatus(campaignId);
 
 	const byStatus = Object.fromEntries(
-		ASSIGNMENT_STATUSES.map((s) => [s, assignments.filter((a) => a.assignmentStatus === s)]),
+		ASSIGNMENT_STATUSES.map((s) => [s, assignments.filter((a) => a.assignmentStatus === s)])
 	) as Record<AssignmentStatus, Assignment[]>;
 
-	const activeAssignment = activeId
-		? assignments.find((a) => a.creatorId === activeId)
-		: null;
+	const activeAssignment = activeId ? assignments.find((a) => a.creatorId === activeId) : null;
 
 	function handleDragEnd(event: DragEndEvent) {
 		setActiveId(null);
@@ -140,7 +143,9 @@ export function AssignmentsKanban({
 				{activeAssignment && (
 					<div className="rounded-lg bg-bg-elevated ring-1 ring-blue-400/50 shadow-3 p-3 w-52 rotate-2">
 						<p className="text-xs font-medium text-text-primary">{activeAssignment.fullName}</p>
-						<p className="text-xs text-text-tertiary font-mono">@{activeAssignment.instagramHandle}</p>
+						<p className="text-xs text-text-tertiary font-mono">
+							@{activeAssignment.instagramHandle}
+						</p>
 					</div>
 				)}
 			</DragOverlay>

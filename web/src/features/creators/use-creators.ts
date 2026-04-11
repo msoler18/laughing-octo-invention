@@ -16,7 +16,6 @@ function buildQS(filters: CreatorsFilters): string {
 export function useCreators(filters: CreatorsFilters) {
 	return useQuery({
 		queryKey: ["creators", filters],
-		queryFn: () =>
-			apiClient.get<CreatorsListResponse>(`/api/v1/creators${buildQS(filters)}`),
+		queryFn: () => apiClient.get<CreatorsListResponse>(`/api/v1/creators${buildQS(filters)}`),
 	});
 }

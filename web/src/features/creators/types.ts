@@ -9,7 +9,7 @@ export interface CreatorRow {
 	country: string | null;
 	city: string | null;
 	followersCount: number;
-	engagementRate: string;       // numeric comes as string from PG
+	engagementRate: string; // numeric comes as string from PG
 	creatorTier: CreatorTier;
 	engagementQuality: EngagementQuality;
 	consistencyScore: string | null;
@@ -18,7 +18,7 @@ export interface CreatorRow {
 	embeddingUpdatedAt: string | null;
 	createdAt: string;
 	updatedAt: string;
-	score: string | null;         // from left-join creator_scores
+	score: string | null; // from left-join creator_scores
 }
 
 export interface Pagination {

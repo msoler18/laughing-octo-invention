@@ -145,7 +145,12 @@ export function CreatorForm({ creator, action, submitLabel }: CreatorFormProps) 
 					<Input name="phone" placeholder="+57 300 000 0000" defaultValue={creator?.phone ?? ""} />
 				</Field>
 				<Field label="Email" name="email">
-					<Input name="email" type="email" placeholder="maria@ejemplo.com" defaultValue={creator?.email ?? ""} />
+					<Input
+						name="email"
+						type="email"
+						placeholder="maria@ejemplo.com"
+						defaultValue={creator?.email ?? ""}
+					/>
 				</Field>
 				<Field label="País" name="country">
 					<Input name="country" placeholder="Colombia" defaultValue={creator?.country ?? ""} />
@@ -154,7 +159,11 @@ export function CreatorForm({ creator, action, submitLabel }: CreatorFormProps) 
 					<Input name="city" placeholder="Bogotá" defaultValue={creator?.city ?? ""} />
 				</Field>
 				<Field label="Handle TikTok" name="tiktokHandle">
-					<Input name="tiktokHandle" placeholder="@usuario" defaultValue={creator?.tiktokHandle ?? ""} />
+					<Input
+						name="tiktokHandle"
+						placeholder="@usuario"
+						defaultValue={creator?.tiktokHandle ?? ""}
+					/>
 				</Field>
 			</div>
 
@@ -162,16 +171,39 @@ export function CreatorForm({ creator, action, submitLabel }: CreatorFormProps) 
 			<SectionTitle>Métricas de alcance</SectionTitle>
 			<div className="grid grid-cols-2 gap-4">
 				<Field label="Seguidores" name="followersCount">
-					<Input name="followersCount" type="number" min={0} defaultValue={creator?.followersCount} />
+					<Input
+						name="followersCount"
+						type="number"
+						min={0}
+						defaultValue={creator?.followersCount}
+					/>
 				</Field>
 				<Field label="Engagement rate (%)" name="engagementRate">
-					<Input name="engagementRate" type="number" min={0} step="0.01" defaultValue={creator?.engagementRate} />
+					<Input
+						name="engagementRate"
+						type="number"
+						min={0}
+						step="0.01"
+						defaultValue={creator?.engagementRate}
+					/>
 				</Field>
 				<Field label="Promedio likes (últimos 10)" name="avgLikesLast10">
-					<Input name="avgLikesLast10" type="number" min={0} step="0.01" defaultValue={creator?.avgLikesLast10 ?? ""} />
+					<Input
+						name="avgLikesLast10"
+						type="number"
+						min={0}
+						step="0.01"
+						defaultValue={creator?.avgLikesLast10 ?? ""}
+					/>
 				</Field>
 				<Field label="Reach rate (%)" name="reachRate">
-					<Input name="reachRate" type="number" min={0} step="0.01" defaultValue={creator?.reachRate ?? ""} />
+					<Input
+						name="reachRate"
+						type="number"
+						min={0}
+						step="0.01"
+						defaultValue={creator?.reachRate ?? ""}
+					/>
 				</Field>
 			</div>
 
@@ -205,7 +237,11 @@ export function CreatorForm({ creator, action, submitLabel }: CreatorFormProps) 
 					</Select>
 				</Field>
 				<Field label="Idioma del contenido" name="contentLanguage">
-					<Input name="contentLanguage" placeholder="es" defaultValue={creator?.contentLanguage ?? ""} />
+					<Input
+						name="contentLanguage"
+						placeholder="es"
+						defaultValue={creator?.contentLanguage ?? ""}
+					/>
 				</Field>
 			</div>
 
@@ -213,7 +249,11 @@ export function CreatorForm({ creator, action, submitLabel }: CreatorFormProps) 
 			<SectionTitle>Contexto</SectionTitle>
 			<div className="space-y-4">
 				<Field label="Bio" name="bioText">
-					<Textarea name="bioText" placeholder="Descripción del creador…" defaultValue={creator?.bioText ?? ""} />
+					<Textarea
+						name="bioText"
+						placeholder="Descripción del creador…"
+						defaultValue={creator?.bioText ?? ""}
+					/>
 				</Field>
 				<div className="grid grid-cols-2 gap-4">
 					<Field label="Keywords (separadas por coma)" name="bioKeywords">
@@ -237,21 +277,44 @@ export function CreatorForm({ creator, action, submitLabel }: CreatorFormProps) 
 			<SectionTitle>Comercial</SectionTitle>
 			<div className="grid grid-cols-2 gap-4">
 				<Field label="Tarifa (USD)" name="contentRateUsd">
-					<Input name="contentRateUsd" type="number" min={0} step="0.01" defaultValue={creator?.contentRateUsd ?? ""} />
+					<Input
+						name="contentRateUsd"
+						type="number"
+						min={0}
+						step="0.01"
+						defaultValue={creator?.contentRateUsd ?? ""}
+					/>
 				</Field>
 				<Field label="Método de pago" name="paymentMethod">
-					<Input name="paymentMethod" placeholder="Nequi, transferencia…" defaultValue={creator?.paymentMethod ?? ""} />
+					<Input
+						name="paymentMethod"
+						placeholder="Nequi, transferencia…"
+						defaultValue={creator?.paymentMethod ?? ""}
+					/>
 				</Field>
 				<Field label="Estado de onboarding" name="onboardingStatus">
-					<Input name="onboardingStatus" placeholder="pendiente, completado…" defaultValue={creator?.onboardingStatus ?? ""} />
+					<Input
+						name="onboardingStatus"
+						placeholder="pendiente, completado…"
+						defaultValue={creator?.onboardingStatus ?? ""}
+					/>
 				</Field>
 				<Field label="Campañas participadas" name="campaignsParticipated">
-					<Input name="campaignsParticipated" type="number" min={0} defaultValue={creator?.campaignsParticipated} />
+					<Input
+						name="campaignsParticipated"
+						type="number"
+						min={0}
+						defaultValue={creator?.campaignsParticipated}
+					/>
 				</Field>
 			</div>
 
 			<Field label="Notas internas" name="notes">
-				<Textarea name="notes" placeholder="Notas del equipo…" defaultValue={creator?.notes ?? ""} />
+				<Textarea
+					name="notes"
+					placeholder="Notas del equipo…"
+					defaultValue={creator?.notes ?? ""}
+				/>
 			</Field>
 
 			{/* ── Actions ───────────────────────────────────────────────────── */}

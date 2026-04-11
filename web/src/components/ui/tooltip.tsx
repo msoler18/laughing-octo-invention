@@ -4,8 +4,8 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { cn } from "@/lib/utils";
 
 export const TooltipProvider = TooltipPrimitive.Provider;
-export const Tooltip         = TooltipPrimitive.Root;
-export const TooltipTrigger  = TooltipPrimitive.Trigger;
+export const Tooltip = TooltipPrimitive.Root;
+export const TooltipTrigger = TooltipPrimitive.Trigger;
 
 export function TooltipContent({
 	className,
@@ -22,7 +22,7 @@ export function TooltipContent({
 					"animate-in fade-in-0 zoom-in-95",
 					"data-[side=bottom]:slide-in-from-top-2",
 					"data-[side=top]:slide-in-from-bottom-2",
-					className,
+					className
 				)}
 				{...props}
 			/>

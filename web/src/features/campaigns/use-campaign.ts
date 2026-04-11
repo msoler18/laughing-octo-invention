@@ -27,7 +27,7 @@ export function useUpdateAssignmentStatus(campaignId: string) {
 				return {
 					...old,
 					assignments: old.assignments.map((a) =>
-						a.creatorId === creatorId ? { ...a, assignmentStatus: status } : a,
+						a.creatorId === creatorId ? { ...a, assignmentStatus: status } : a
 					),
 				};
 			});
@@ -53,7 +53,9 @@ export function useUpdatePostUrl(campaignId: string) {
 
 	return useMutation({
 		mutationFn: ({ creatorId, postUrl }: { creatorId: string; postUrl: string }) =>
-			apiClient.patch(`/api/v1/campaigns/${campaignId}/creators/${creatorId}/post-url`, { postUrl }),
+			apiClient.patch(`/api/v1/campaigns/${campaignId}/creators/${creatorId}/post-url`, {
+				postUrl,
+			}),
 
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["campaign", campaignId] });

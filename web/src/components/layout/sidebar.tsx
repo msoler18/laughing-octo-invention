@@ -1,13 +1,13 @@
 "use client";
 
+import { LayoutGrid, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-	{ href: "/creators",  label: "Creadores",  icon: Users },
-	{ href: "/campaigns", label: "Campañas",   icon: LayoutGrid },
+	{ href: "/creators", label: "Creadores", icon: Users },
+	{ href: "/campaigns", label: "Campañas", icon: LayoutGrid },
 ] as const;
 
 export function Sidebar() {
@@ -35,13 +35,10 @@ export function Sidebar() {
 								"flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
 								active
 									? "bg-blue-400/10 text-blue-300 font-medium"
-									: "text-text-secondary hover:bg-bg-elevated hover:text-text-primary",
+									: "text-text-secondary hover:bg-bg-elevated hover:text-text-primary"
 							)}
 						>
-							<Icon
-								size={16}
-								className={cn(active ? "text-blue-400" : "text-text-tertiary")}
-							/>
+							<Icon size={16} className={cn(active ? "text-blue-400" : "text-text-tertiary")} />
 							{label}
 						</Link>
 					);
