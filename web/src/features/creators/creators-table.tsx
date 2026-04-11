@@ -8,7 +8,7 @@ import type { CreatorRow } from "./types";
 
 function formatFollowers(n: number): string {
 	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-	if (n >= 1_000)     return `${(n / 1_000).toFixed(0)}K`;
+	if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
 	return String(n);
 }
 
@@ -32,11 +32,14 @@ function LetterAvatar({ name }: { name: string }) {
 // ── Skeleton row (M2-09) ──────────────────────────────────────────────────────
 
 function SkeletonRow() {
+	const cols = ["name", "city", "followers", "eng", "tier", "quality", "score"] as const;
 	return (
 		<tr className="border-b border-border-default">
-			{Array.from({ length: 7 }).map((_, i) => (
-				<td key={i} className="px-4 py-3">
-					<div className={cn("h-4 rounded bg-bg-elevated animate-pulse", i === 0 ? "w-40" : "w-20")} />
+			{cols.map((k, i) => (
+				<td key={k} className="px-4 py-3">
+					<div
+						className={cn("h-4 rounded bg-bg-elevated animate-pulse", i === 0 ? "w-40" : "w-20")}
+					/>
 				</td>
 			))}
 		</tr>
@@ -53,13 +56,13 @@ interface CreatorsTableProps {
 }
 
 const COLUMNS = [
-	{ key: "creator",         label: "Creador",     width: "w-64" },
-	{ key: "city",            label: "Ciudad",      width: "w-28" },
-	{ key: "followersCount",  label: "Seguidores",  width: "w-28" },
-	{ key: "engagementRate",  label: "Eng. rate",   width: "w-24" },
-	{ key: "creatorTier",     label: "Tier",        width: "w-24" },
-	{ key: "engagementQuality", label: "Calidad",   width: "w-28" },
-	{ key: "score",           label: "Score",       width: "w-20" },
+	{ key: "creator", label: "Creador", width: "w-64" },
+	{ key: "city", label: "Ciudad", width: "w-28" },
+	{ key: "followersCount", label: "Seguidores", width: "w-28" },
+	{ key: "engagementRate", label: "Eng. rate", width: "w-24" },
+	{ key: "creatorTier", label: "Tier", width: "w-24" },
+	{ key: "engagementQuality", label: "Calidad", width: "w-28" },
+	{ key: "score", label: "Score", width: "w-20" },
 ];
 
 export function CreatorsTable({ rows, isLoading, isError, onRowClick }: CreatorsTableProps) {
@@ -68,7 +71,9 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 		return (
 			<div className="flex flex-col items-center justify-center py-20 text-center">
 				<p className="text-sm font-medium text-text-primary">Error al cargar creadores</p>
-				<p className="mt-1 text-xs text-text-tertiary">Verifica que el servidor esté corriendo en el puerto 3001.</p>
+				<p className="mt-1 text-xs text-text-tertiary">
+					Verifica que el servidor esté corriendo en el puerto 3001.
+				</p>
 			</div>
 		);
 	}
@@ -83,7 +88,7 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 								key={col.key}
 								className={cn(
 									"px-4 py-2.5 text-left text-xs font-medium text-text-tertiary uppercase tracking-wide",
-									col.width,
+									col.width
 								)}
 							>
 								{col.label}
@@ -95,7 +100,7 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 				<tbody className="divide-y divide-border-default bg-bg-page">
 					{/* Loading skeleton */}
 					{isLoading &&
-						Array.from({ length: 8 }).map((_, i) => <SkeletonRow key={i} />)}
+						["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8"].map((k) => <SkeletonRow key={k} />)}
 
 					{/* Empty state */}
 					{!isLoading && rows.length === 0 && (
@@ -117,7 +122,7 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 								onClick={() => onRowClick?.(row.id)}
 								className={cn(
 									"transition-colors",
-									onRowClick && "cursor-pointer hover:bg-bg-surface",
+									onRowClick && "cursor-pointer hover:bg-bg-surface"
 								)}
 							>
 								{/* Creator identity */}
@@ -125,9 +130,7 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 									<div className="flex items-center gap-3">
 										<LetterAvatar name={row.fullName} />
 										<div className="min-w-0">
-											<p className="truncate font-medium text-text-primary">
-												{row.fullName}
-											</p>
+											<p className="truncate font-medium text-text-primary">{row.fullName}</p>
 											<p className="truncate text-xs text-text-tertiary font-mono">
 												@{row.instagramHandle}
 											</p>
@@ -148,9 +151,7 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 								</td>
 
 								<td className="px-4 py-3">
-									<Badge variant={statusVariant(row.creatorTier)}>
-										{row.creatorTier}
-									</Badge>
+									<Badge variant={statusVariant(row.creatorTier)}>{row.creatorTier}</Badge>
 								</td>
 
 								<td className="px-4 py-3">

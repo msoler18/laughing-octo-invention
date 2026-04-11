@@ -6,18 +6,24 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export async function createCampaign(_prev: unknown, formData: FormData) {
 	const str = (k: string) => (formData.get(k) as string | null)?.trim() || undefined;
-	const num = (k: string) => { const v = str(k); return v ? Number(v) : undefined; };
+	const num = (k: string) => {
+		const v = str(k);
+		return v ? Number(v) : undefined;
+	};
 
 	// Convert date input (YYYY-MM-DD) to ISO datetime
-	const toISO = (k: string) => { const v = str(k); return v ? new Date(v).toISOString() : undefined; };
+	const toISO = (k: string) => {
+		const v = str(k);
+		return v ? new Date(v).toISOString() : undefined;
+	};
 
 	const body = {
-		name:               str("name"),
-		brand:              str("brand"),
-		description:        str("description"),
-		briefText:          str("briefText"),
-		startDate:          toISO("startDate"),
-		endDate:            toISO("endDate"),
+		name: str("name"),
+		brand: str("brand"),
+		description: str("description"),
+		briefText: str("briefText"),
+		startDate: toISO("startDate"),
+		endDate: toISO("endDate"),
 		targetCreatorCount: num("targetCreatorCount") ?? 0,
 	};
 
@@ -32,6 +38,6 @@ export async function createCampaign(_prev: unknown, formData: FormData) {
 		return { error: (data as { message?: string }).message ?? `Error ${res.status}` };
 	}
 
-	const campaign = await res.json() as { id: string };
+	const campaign = (await res.json()) as { id: string };
 	redirect(`/campaigns/${campaign.id}`);
 }

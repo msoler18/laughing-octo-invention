@@ -1,15 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import {
-	Dialog, DialogContent, DialogHeader,
-	DialogTitle, DialogDescription,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
 } from "@/components/ui/dialog";
+
 function SubmitButton() {
 	const { pending } = useFormStatus();
 	return (
@@ -19,10 +21,20 @@ function SubmitButton() {
 	);
 }
 
-function Field({ label, name, children }: { label: string; name: string; children: React.ReactNode }) {
+function Field({
+	label,
+	name,
+	children,
+}: {
+	label: string;
+	name: string;
+	children: React.ReactNode;
+}) {
 	return (
 		<div className="space-y-1">
-			<label htmlFor={name} className="block text-xs font-medium text-text-secondary">{label}</label>
+			<label htmlFor={name} className="block text-xs font-medium text-text-secondary">
+				{label}
+			</label>
 			{children}
 		</div>
 	);
@@ -42,10 +54,9 @@ type ActionFn = (prev: unknown, formData: FormData) => Promise<{ error: string }
 
 export function NewCampaignButton({ createAction }: { createAction: ActionFn }) {
 	const [open, setOpen] = useState(false);
-	const router = useRouter();
 	const [state, formAction] = useActionState<{ error: string } | undefined, FormData>(
 		createAction,
-		undefined,
+		undefined
 	);
 
 	// Close dialog on successful redirect (action throws redirect, won't reach here)
@@ -66,9 +77,7 @@ export function NewCampaignButton({ createAction }: { createAction: ActionFn }) 
 					</DialogHeader>
 
 					<form action={formAction} className="mt-2 space-y-4">
-						{state?.error && (
-							<p className="text-xs text-red-400">{state.error}</p>
-						)}
+						{state?.error && <p className="text-xs text-red-400">{state.error}</p>}
 
 						<div className="grid grid-cols-2 gap-3">
 							<Field label="Nombre *" name="name">

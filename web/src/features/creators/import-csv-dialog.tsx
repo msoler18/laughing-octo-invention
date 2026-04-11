@@ -1,12 +1,16 @@
 "use client";
 
+import { CheckCircle2, Loader2, Upload, XCircle } from "lucide-react";
 import { useRef, useState } from "react";
-import { Upload, CheckCircle2, XCircle, Loader2 } from "lucide-react";
-import {
-	Dialog, DialogContent, DialogHeader,
-	DialogTitle, DialogDescription, DialogClose,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { useImportJob } from "./use-import-job";
 
 interface ImportCsvDialogProps {
@@ -17,7 +21,7 @@ interface ImportCsvDialogProps {
 
 export function ImportCsvDialog({ open, onOpenChange, onSuccess }: ImportCsvDialogProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
-	const [jobId, setJobId]     = useState<string | null>(null);
+	const [jobId, setJobId] = useState<string | null>(null);
 	const [uploading, setUploading] = useState(false);
 	const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -48,7 +52,7 @@ export function ImportCsvDialog({ open, onOpenChange, onSuccess }: ImportCsvDial
 				throw new Error(body.message ?? `Error ${res.status}`);
 			}
 
-			const data = await res.json() as { jobId: string };
+			const data = (await res.json()) as { jobId: string };
 			setJobId(data.jobId);
 		} catch (err) {
 			setUploadError(err instanceof Error ? err.message : "Error desconocido");
@@ -67,8 +71,8 @@ export function ImportCsvDialog({ open, onOpenChange, onSuccess }: ImportCsvDial
 		}
 	}
 
-	const isDone    = job?.status === "done";
-	const isFailed  = job?.status === "failed";
+	const isDone = job?.status === "done";
+	const isFailed = job?.status === "failed";
 	const isRunning = jobId && !isDone && !isFailed;
 
 	return (
@@ -77,14 +81,15 @@ export function ImportCsvDialog({ open, onOpenChange, onSuccess }: ImportCsvDial
 				<DialogHeader>
 					<DialogTitle>Importar creadores desde CSV</DialogTitle>
 					<DialogDescription>
-						Sube un archivo CSV con creadores. Columnas soportadas: instagram_handle,
-						full_name, followers_count, engagment_rate (typo OK), city, creator_tier, y más.
+						Sube un archivo CSV con creadores. Columnas soportadas: instagram_handle, full_name,
+						followers_count, engagment_rate (typo OK), city, creator_tier, y más.
 					</DialogDescription>
 				</DialogHeader>
 
 				{/* Upload zone — shown before job starts */}
 				{!jobId && (
-					<div
+					<button
+						type="button"
 						onClick={() => inputRef.current?.click()}
 						onDragOver={(e) => e.preventDefault()}
 						onDrop={(e) => {
@@ -92,7 +97,7 @@ export function ImportCsvDialog({ open, onOpenChange, onSuccess }: ImportCsvDial
 							const f = e.dataTransfer.files[0];
 							if (f) handleFile(f);
 						}}
-						className="mt-2 flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-border-default py-10 px-6 cursor-pointer hover:border-blue-400/50 hover:bg-blue-400/5 transition-colors"
+						className="mt-2 w-full flex flex-col items-center gap-3 rounded-lg border-2 border-dashed border-border-default py-10 px-6 cursor-pointer hover:border-blue-400/50 hover:bg-blue-400/5 transition-colors"
 					>
 						<Upload size={24} className="text-text-tertiary" />
 						<div className="text-center">
@@ -106,28 +111,29 @@ export function ImportCsvDialog({ open, onOpenChange, onSuccess }: ImportCsvDial
 							type="file"
 							accept=".csv"
 							className="hidden"
-							onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+							onChange={(e) => {
+								const f = e.target.files?.[0];
+								if (f) handleFile(f);
+							}}
 						/>
-					</div>
+					</button>
 				)}
 
-				{uploadError && (
-					<p className="mt-2 text-xs text-red-400">{uploadError}</p>
-				)}
+				{uploadError && <p className="mt-2 text-xs text-red-400">{uploadError}</p>}
 
 				{/* Job progress */}
 				{jobId && (
 					<div className="mt-4 space-y-3">
 						{/* Status indicator */}
 						<div className="flex items-center gap-3">
-							{isRunning  && <Loader2 size={16} className="animate-spin text-blue-400" />}
-							{isDone     && <CheckCircle2 size={16} className="text-emerald-400" />}
-							{isFailed   && <XCircle size={16} className="text-red-400" />}
+							{isRunning && <Loader2 size={16} className="animate-spin text-blue-400" />}
+							{isDone && <CheckCircle2 size={16} className="text-emerald-400" />}
+							{isFailed && <XCircle size={16} className="text-red-400" />}
 							<p className="text-sm font-medium text-text-primary capitalize">
-								{job?.status === "queued"      && "En cola…"}
-								{job?.status === "processing"  && "Procesando filas…"}
-								{isDone                        && "Importación completada"}
-								{isFailed                      && "Error en la importación"}
+								{job?.status === "queued" && "En cola…"}
+								{job?.status === "processing" && "Procesando filas…"}
+								{isDone && "Importación completada"}
+								{isFailed && "Error en la importación"}
 							</p>
 						</div>
 
@@ -168,7 +174,9 @@ export function ImportCsvDialog({ open, onOpenChange, onSuccess }: ImportCsvDial
 					)}
 					{!jobId && (
 						<DialogClose asChild>
-							<Button variant="secondary" size="sm">Cancelar</Button>
+							<Button variant="secondary" size="sm">
+								Cancelar
+							</Button>
 						</DialogClose>
 					)}
 				</div>
