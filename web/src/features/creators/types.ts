@@ -66,6 +66,39 @@ export interface CreatorDetail extends CreatorRow {
 	embeddingModelId: string | null;
 }
 
+// ── RAG Search ────────────────────────────────────────────────────────────────
+
+export interface SearchResult {
+	id: string;
+	instagramHandle: string;
+	fullName: string;
+	city: string | null;
+	creatorTier: string;
+	engagementQuality: string;
+	followersCount: number;
+	engagementRate: string;
+	bioText: string | null;
+	bioKeywords: string[] | null;
+	score: string | null;
+	semanticScore: number; // 0–1, higher = more relevant
+}
+
+export interface AppliedFilters {
+	city?: string;
+	tier?: string;
+	followers_min?: number;
+	followers_max?: number;
+	engagement_quality?: string;
+	category_slugs?: string[];
+}
+
+export interface SearchResponse {
+	results: SearchResult[];
+	filtersApplied: AppliedFilters;
+	total: number;
+	embeddingsPending: number;
+}
+
 export interface CreatorsFilters {
 	page?: number;
 	limit?: number;

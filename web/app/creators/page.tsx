@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { CreatorsFiltersPanel } from "@/features/creators/creators-filters";
 import { CreatorsTable } from "@/features/creators/creators-table";
 import { ImportCsvDialog } from "@/features/creators/import-csv-dialog";
+import { RAGResultsTable, RAGSearch } from "@/features/creators/rag-search";
 import type { CreatorsFilters } from "@/features/creators/types";
 import { useCreators } from "@/features/creators/use-creators";
+import { useRAGSearch } from "@/features/creators/use-rag-search";
 
 export default function CreatorsPage() {
 	const router = useRouter();
@@ -26,6 +28,7 @@ export default function CreatorsPage() {
 	}, [searchParams]);
 
 	const { data, isLoading, isError, refetch } = useCreators(filters);
+	const rag = useRAGSearch();
 
 	const pagination = data?.pagination;
 	const rows = data?.data ?? [];
@@ -40,7 +43,11 @@ export default function CreatorsPage() {
 			<Topbar
 				title="Creadores"
 				description={
-					pagination ? `${pagination.total.toLocaleString("es-CO")} creadores en total` : undefined
+					rag.isActive
+						? undefined
+						: pagination
+							? `${pagination.total.toLocaleString("es-CO")} creadores en total`
+							: undefined
 				}
 				actions={
 					<>
@@ -58,47 +65,72 @@ export default function CreatorsPage() {
 
 			{/* Content */}
 			<div className="flex flex-1 gap-6 p-6">
-				{/* M2-07 — Filters sidebar */}
-				<CreatorsFiltersPanel filters={filters} onChange={setFilters} />
+				{/* M2-07 — Filters sidebar: hidden in RAG mode */}
+				{!rag.isActive && <CreatorsFiltersPanel filters={filters} onChange={setFilters} />}
 
-				{/* Table + pagination */}
+				{/* Main column */}
 				<div className="flex flex-1 flex-col gap-4 min-w-0">
-					{/* M2-06 — DataTable */}
-					<CreatorsTable
-						rows={rows}
-						isLoading={isLoading}
-						isError={isError}
-						onRowClick={(id) => router.push(`/creators/${id}/edit`)}
+					{/* M4-06 — RAG Search bar (always visible) */}
+					<RAGSearch
+						inputValue={rag.inputValue}
+						onChange={rag.setInputValue}
+						onSearch={rag.search}
+						onClear={rag.clear}
+						isActive={rag.isActive}
+						isFetching={rag.isFetching}
+						chips={rag.chips}
+						onRemoveFilter={rag.removeFilter}
+						total={rag.total}
+						embeddingsPending={rag.embeddingsPending}
 					/>
 
-					{/* M2-08 — Pagination */}
-					{pagination && pagination.pages > 1 && (
-						<div className="flex items-center justify-between text-sm">
-							<p className="text-text-tertiary">
-								Página {pagination.page} de {pagination.pages} ·{" "}
-								{pagination.total.toLocaleString("es-CO")} resultados
-							</p>
-							<div className="flex items-center gap-2">
-								<Button
-									variant="secondary"
-									size="sm"
-									disabled={pagination.page <= 1}
-									onClick={() => setPage(pagination.page - 1)}
-								>
-									<ChevronLeft size={14} />
-									Anterior
-								</Button>
-								<Button
-									variant="secondary"
-									size="sm"
-									disabled={pagination.page >= pagination.pages}
-									onClick={() => setPage(pagination.page + 1)}
-								>
-									Siguiente
-									<ChevronRight size={14} />
-								</Button>
-							</div>
-						</div>
+					{/* M4-07 — RAG results / regular table */}
+					{rag.isActive ? (
+						<RAGResultsTable
+							results={rag.results}
+							isLoading={rag.isLoading}
+							onRowClick={(id) => router.push(`/creators/${id}/edit`)}
+						/>
+					) : (
+						<>
+							{/* M2-06 — DataTable */}
+							<CreatorsTable
+								rows={rows}
+								isLoading={isLoading}
+								isError={isError}
+								onRowClick={(id) => router.push(`/creators/${id}/edit`)}
+							/>
+
+							{/* M2-08 — Pagination */}
+							{pagination && pagination.pages > 1 && (
+								<div className="flex items-center justify-between text-sm">
+									<p className="text-text-tertiary">
+										Página {pagination.page} de {pagination.pages} ·{" "}
+										{pagination.total.toLocaleString("es-CO")} resultados
+									</p>
+									<div className="flex items-center gap-2">
+										<Button
+											variant="secondary"
+											size="sm"
+											disabled={pagination.page <= 1}
+											onClick={() => setPage(pagination.page - 1)}
+										>
+											<ChevronLeft size={14} />
+											Anterior
+										</Button>
+										<Button
+											variant="secondary"
+											size="sm"
+											disabled={pagination.page >= pagination.pages}
+											onClick={() => setPage(pagination.page + 1)}
+										>
+											Siguiente
+											<ChevronRight size={14} />
+										</Button>
+									</div>
+								</div>
+							)}
+						</>
 					)}
 				</div>
 			</div>
