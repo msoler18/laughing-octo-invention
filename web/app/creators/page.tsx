@@ -99,6 +99,11 @@ export default function CreatorsPage() {
 								isLoading={isLoading}
 								isError={isError}
 								onRowClick={(id) => router.push(`/creators/${id}/edit`)}
+								sortBy={filters.sort_by}
+								sortOrder={filters.sort_order}
+								onSort={(by, order) =>
+									setFilters((f) => ({ ...f, sort_by: by, sort_order: order, page: 1 }))
+								}
 							/>
 
 							{/* M2-08 — Pagination */}

@@ -86,6 +86,20 @@ export default function CampaignDetailPage() {
 	const startFmt = fmt(campaign.startDate);
 	const endFmt = fmt(campaign.endDate);
 
+	// M5-07 — aggregate metrics from verified assignments
+	const verifiedAssignments = campaign.assignments.filter(
+		(a) => a.assignmentStatus === "verificado" || a.assignmentStatus === "pagado"
+	);
+	const aggregatedMetrics =
+		verifiedAssignments.length > 0
+			? {
+					impressions: verifiedAssignments.reduce((s, a) => s + (a.impressions ?? 0), 0),
+					reach: verifiedAssignments.reduce((s, a) => s + (a.reach ?? 0), 0),
+					saves: verifiedAssignments.reduce((s, a) => s + (a.saves ?? 0), 0),
+					count: verifiedAssignments.length,
+				}
+			: null;
+
 	return (
 		<>
 			{/* M2-19 — Campaign header */}
@@ -110,6 +124,32 @@ export default function CampaignDetailPage() {
 				<div className="rounded-xl bg-bg-surface ring-1 ring-border-default p-5">
 					<PipelineStatsBar stats={campaign} />
 				</div>
+
+				{/* M5-07 — Aggregated post metrics (verified + pagado) */}
+				{aggregatedMetrics && (
+					<div className="rounded-xl bg-bg-surface ring-1 ring-border-default p-5">
+						<p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-3">
+							Resultados · {aggregatedMetrics.count} post{aggregatedMetrics.count !== 1 ? "s" : ""}{" "}
+							verificado{aggregatedMetrics.count !== 1 ? "s" : ""}
+						</p>
+						<div className="grid grid-cols-3 gap-4">
+							{(
+								[
+									{ label: "Impresiones", value: aggregatedMetrics.impressions },
+									{ label: "Alcance", value: aggregatedMetrics.reach },
+									{ label: "Saves", value: aggregatedMetrics.saves },
+								] as const
+							).map(({ label, value }) => (
+								<div key={label}>
+									<p className="text-xs text-text-tertiary">{label}</p>
+									<p className="text-lg font-semibold font-mono text-text-primary mt-0.5">
+										{value > 0 ? value.toLocaleString("es-CO") : "—"}
+									</p>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 
 				{/* M2-22 — Table / Kanban toggle */}
 				<div className="flex items-center justify-between">

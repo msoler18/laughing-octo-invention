@@ -2,25 +2,12 @@
 
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { BarChart2, CheckCircle2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { STATUS_LABELS } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { ScoreBadge } from "@/components/ui/score-badge";
 import { type Assignment, type AssignmentStatus, VALID_TRANSITIONS } from "./types";
-import { useUpdateAssignmentStatus, useUpdatePostUrl } from "./use-campaign";
-
-function ScoreCell({ score }: { score: string | null }) {
-	if (!score) return <span className="text-text-tertiary font-mono">—</span>;
-	const n = parseFloat(score);
-	const color =
-		n >= 75
-			? "text-emerald-400"
-			: n >= 50
-				? "text-amber-400"
-				: n >= 25
-					? "text-orange-400"
-					: "text-red-400";
-	return <span className={cn("font-mono font-medium", color)}>{n.toFixed(0)}</span>;
-}
+import { useUpdateAssignmentStatus, useUpdateMetrics, useUpdatePostUrl } from "./use-campaign";
 
 function PostUrlCell({
 	creatorId,
@@ -126,6 +113,111 @@ function StatusSelect({
 	);
 }
 
+// M5-05 — inline metrics popover
+function MetricsCell({ assignment, campaignId }: { assignment: Assignment; campaignId: string }) {
+	const [open, setOpen] = useState(false);
+	const { mutate, isPending } = useUpdateMetrics(campaignId);
+	const hasMetrics = assignment.metricsEnteredAt !== null;
+
+	const [form, setForm] = useState({
+		impressions: assignment.impressions ?? "",
+		reach: assignment.reach ?? "",
+		saves: assignment.saves ?? "",
+		likes: assignment.likes ?? "",
+		comments: assignment.comments ?? "",
+	});
+
+	function handleSubmit(e: React.FormEvent) {
+		e.preventDefault();
+		mutate(
+			{
+				creatorId: assignment.creatorId,
+				metrics: {
+					impressions: form.impressions !== "" ? Number(form.impressions) : null,
+					reach: form.reach !== "" ? Number(form.reach) : null,
+					saves: form.saves !== "" ? Number(form.saves) : null,
+					likes: form.likes !== "" ? Number(form.likes) : null,
+					comments: form.comments !== "" ? Number(form.comments) : null,
+				},
+			},
+			{ onSuccess: () => setOpen(false) }
+		);
+	}
+
+	if (!open) {
+		return (
+			<button
+				type="button"
+				onClick={() => setOpen(true)}
+				className="flex items-center gap-1.5 text-xs hover:text-blue-400 transition-colors"
+				title="Editar métricas"
+			>
+				{/* M5-06 — visual indicator */}
+				{hasMetrics ? (
+					<CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
+				) : (
+					<BarChart2 size={13} className="text-text-tertiary shrink-0" />
+				)}
+				<span className={hasMetrics ? "text-text-secondary font-mono" : "text-text-tertiary"}>
+					{hasMetrics
+						? `${assignment.impressions?.toLocaleString("es-CO") ?? "—"} imp.`
+						: "Registrar"}
+				</span>
+			</button>
+		);
+	}
+
+	const FIELDS = [
+		{ key: "impressions" as const, label: "Impresiones" },
+		{ key: "reach" as const, label: "Alcance" },
+		{ key: "saves" as const, label: "Saves" },
+		{ key: "likes" as const, label: "Likes" },
+		{ key: "comments" as const, label: "Comentarios" },
+	];
+
+	return (
+		<form
+			onSubmit={handleSubmit}
+			className="rounded-lg bg-bg-elevated ring-1 ring-border-default p-3 space-y-2 w-48"
+		>
+			{FIELDS.map(({ key, label }) => (
+				<div key={key} className="flex items-center justify-between gap-2">
+					<label
+						htmlFor={`metric-${key}-${assignment.id}`}
+						className="text-xs text-text-secondary shrink-0 w-24"
+					>
+						{label}
+					</label>
+					<input
+						id={`metric-${key}-${assignment.id}`}
+						type="number"
+						min={0}
+						value={form[key]}
+						onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+						className="w-20 rounded bg-bg-page px-2 py-0.5 text-xs font-mono text-text-primary ring-1 ring-border-default focus:outline-none focus:ring-border-focus"
+					/>
+				</div>
+			))}
+			<div className="flex gap-2 pt-1">
+				<button
+					type="submit"
+					disabled={isPending}
+					className="flex-1 rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+				>
+					{isPending ? "…" : "Guardar"}
+				</button>
+				<button
+					type="button"
+					onClick={() => setOpen(false)}
+					className="rounded px-2 py-1 text-xs text-text-secondary hover:text-text-primary ring-1 ring-border-default"
+				>
+					Cancelar
+				</button>
+			</div>
+		</form>
+	);
+}
+
 export function AssignmentsTable({
 	assignments,
 	campaignId,
@@ -149,15 +241,7 @@ export function AssignmentsTable({
 			<table className="min-w-full divide-y divide-border-default text-sm">
 				<thead className="bg-bg-surface">
 					<tr>
-						{[
-							"Creador",
-							"Estado",
-							"Post URL",
-							"Impresiones",
-							"Alcance",
-							"Score",
-							"Últ. cambio",
-						].map((h) => (
+						{["Creador", "Estado", "Post URL", "Métricas", "Score", "Últ. cambio"].map((h) => (
 							<th
 								key={h}
 								className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary uppercase tracking-wide whitespace-nowrap"
@@ -185,14 +269,12 @@ export function AssignmentsTable({
 							<td className="px-4 py-3">
 								<PostUrlCell campaignId={campaignId} creatorId={a.creatorId} postUrl={a.postUrl} />
 							</td>
-							<td className="px-4 py-3 font-mono text-text-secondary">
-								{a.impressions?.toLocaleString("es-CO") ?? "—"}
-							</td>
-							<td className="px-4 py-3 font-mono text-text-secondary">
-								{a.reach?.toLocaleString("es-CO") ?? "—"}
+							{/* M5-05/06 — metrics cell */}
+							<td className="px-4 py-3">
+								<MetricsCell assignment={a} campaignId={campaignId} />
 							</td>
 							<td className="px-4 py-3">
-								<ScoreCell score={a.score} />
+								<ScoreBadge score={a.score} />
 							</td>
 							{/* M3-07 — última actualización de estado */}
 							<td

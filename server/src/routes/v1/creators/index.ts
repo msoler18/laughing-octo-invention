@@ -1,4 +1,4 @@
-import { and, eq, gte, ilike, inArray, lte, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, inArray, lte, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyReply } from "fastify";
 import type { ZodError } from "zod";
 import { db } from "../../../db/index.js";
@@ -51,6 +51,8 @@ export default async function creatorsRoute(app: FastifyInstance) {
 						engagement_quality: { type: "string", enum: ["zero", "low", "average", "high", "viral"] },
 						followers_min: { type: "integer", minimum: 0 },
 						followers_max: { type: "integer", minimum: 0 },
+						sort_by: { type: "string", enum: ["score", "followers", "created_at"] },
+						sort_order: { type: "string", enum: ["asc", "desc"] },
 					},
 				},
 			},
@@ -59,7 +61,7 @@ export default async function creatorsRoute(app: FastifyInstance) {
 			const parsed = CreatorsQuerySchema.safeParse(request.query);
 			if (!parsed.success) return zodError(reply as never, parsed.error);
 
-			const { page, limit, city, tier, engagement_quality, followers_min, followers_max, category } =
+			const { page, limit, city, tier, engagement_quality, followers_min, followers_max, category, sort_by, sort_order } =
 				parsed.data;
 
 			// Build WHERE conditions
@@ -123,7 +125,19 @@ export default async function creatorsRoute(app: FastifyInstance) {
 				.from(creators)
 				.leftJoin(creatorScores, eq(creatorScores.creatorId, creators.id))
 				.where(fullConditions)
-				.orderBy(creators.createdAt)
+				.orderBy(
+					sort_by === "score"
+						? sort_order === "asc"
+							? asc(sql`COALESCE(${creatorScores.score}::numeric, 0)`)
+							: desc(sql`COALESCE(${creatorScores.score}::numeric, 0)`)
+						: sort_by === "followers"
+							? sort_order === "asc"
+								? asc(creators.followersCount)
+								: desc(creators.followersCount)
+							: sort_order === "asc"
+								? asc(creators.createdAt)
+								: desc(creators.createdAt)
+				)
 				.limit(limit)
 				.offset((page - 1) * limit);
 

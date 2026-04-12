@@ -1,6 +1,8 @@
 "use client";
 
+import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
 import { Badge, statusVariant } from "@/components/ui/badge";
+import { ScoreBadge } from "@/components/ui/score-badge";
 import { cn } from "@/lib/utils";
 import type { CreatorRow } from "./types";
 
@@ -10,15 +12,6 @@ function formatFollowers(n: number): string {
 	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
 	if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
 	return String(n);
-}
-
-function scoreColor(score: string | null): string {
-	if (!score) return "text-text-tertiary";
-	const n = parseFloat(score);
-	if (n >= 75) return "text-emerald-400";
-	if (n >= 50) return "text-amber-400";
-	if (n >= 25) return "text-orange-400";
-	return "text-red-400";
 }
 
 function LetterAvatar({ name }: { name: string }) {
@@ -46,6 +39,17 @@ function SkeletonRow() {
 	);
 }
 
+// ── Sort icon ─────────────────────────────────────────────────────────────────
+
+function SortIcon({ active, order }: { active: boolean; order: "asc" | "desc" }) {
+	if (!active) return <ChevronsUpDown size={12} className="text-text-tertiary" />;
+	return order === "asc" ? (
+		<ChevronUp size={12} className="text-blue-400" />
+	) : (
+		<ChevronDown size={12} className="text-blue-400" />
+	);
+}
+
 // ── Main table ─────────────────────────────────────────────────────────────────
 
 interface CreatorsTableProps {
@@ -53,19 +57,39 @@ interface CreatorsTableProps {
 	isLoading: boolean;
 	isError: boolean;
 	onRowClick?: (id: string) => void;
+	sortBy?: "score" | "followers" | "created_at";
+	sortOrder?: "asc" | "desc";
+	onSort?: (by: "score" | "followers" | "created_at", order: "asc" | "desc") => void;
 }
 
-const COLUMNS = [
-	{ key: "creator", label: "Creador", width: "w-64" },
-	{ key: "city", label: "Ciudad", width: "w-28" },
-	{ key: "followersCount", label: "Seguidores", width: "w-28" },
-	{ key: "engagementRate", label: "Eng. rate", width: "w-24" },
-	{ key: "creatorTier", label: "Tier", width: "w-24" },
-	{ key: "engagementQuality", label: "Calidad", width: "w-28" },
-	{ key: "score", label: "Score", width: "w-20" },
-];
+const STATIC_COLUMNS = [
+	{ key: "creator", label: "Creador", width: "w-64", sortable: false },
+	{ key: "city", label: "Ciudad", width: "w-28", sortable: false },
+	{ key: "followersCount", label: "Seguidores", width: "w-28", sortable: false },
+	{ key: "engagementRate", label: "Eng. rate", width: "w-24", sortable: false },
+	{ key: "creatorTier", label: "Tier", width: "w-24", sortable: false },
+	{ key: "engagementQuality", label: "Calidad", width: "w-28", sortable: false },
+	{ key: "score", label: "Score", width: "w-20", sortable: true },
+] as const;
 
-export function CreatorsTable({ rows, isLoading, isError, onRowClick }: CreatorsTableProps) {
+export function CreatorsTable({
+	rows,
+	isLoading,
+	isError,
+	onRowClick,
+	sortBy = "created_at",
+	sortOrder = "desc",
+	onSort,
+}: CreatorsTableProps) {
+	function handleSortScore() {
+		if (!onSort) return;
+		if (sortBy === "score") {
+			onSort("score", sortOrder === "asc" ? "desc" : "asc");
+		} else {
+			onSort("score", "desc");
+		}
+	}
+
 	// ── Error state ───────────────────────────────────────────────────────────
 	if (isError) {
 		return (
@@ -83,17 +107,34 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 			<table className="min-w-full divide-y divide-border-default text-sm">
 				<thead className="bg-bg-surface">
 					<tr>
-						{COLUMNS.map((col) => (
-							<th
-								key={col.key}
-								className={cn(
-									"px-4 py-2.5 text-left text-xs font-medium text-text-tertiary uppercase tracking-wide",
-									col.width
-								)}
-							>
-								{col.label}
-							</th>
-						))}
+						{STATIC_COLUMNS.map((col) =>
+							col.key === "score" ? (
+								<th
+									key={col.key}
+									className={cn(
+										"px-4 py-2.5 text-left text-xs font-medium text-text-tertiary uppercase tracking-wide",
+										col.width,
+										onSort && "cursor-pointer select-none hover:text-text-secondary"
+									)}
+									onClick={handleSortScore}
+								>
+									<span className="inline-flex items-center gap-1">
+										{col.label}
+										<SortIcon active={sortBy === "score"} order={sortOrder} />
+									</span>
+								</th>
+							) : (
+								<th
+									key={col.key}
+									className={cn(
+										"px-4 py-2.5 text-left text-xs font-medium text-text-tertiary uppercase tracking-wide",
+										col.width
+									)}
+								>
+									{col.label}
+								</th>
+							)
+						)}
 					</tr>
 				</thead>
 
@@ -105,7 +146,7 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 					{/* Empty state */}
 					{!isLoading && rows.length === 0 && (
 						<tr>
-							<td colSpan={COLUMNS.length} className="px-4 py-16 text-center">
+							<td colSpan={STATIC_COLUMNS.length} className="px-4 py-16 text-center">
 								<p className="text-sm font-medium text-text-primary">Sin resultados</p>
 								<p className="mt-1 text-xs text-text-tertiary">
 									Ajusta los filtros o importa creadores con un CSV.
@@ -161,9 +202,7 @@ export function CreatorsTable({ rows, isLoading, isError, onRowClick }: Creators
 								</td>
 
 								<td className="px-4 py-3">
-									<span className={cn("font-mono font-medium", scoreColor(row.score))}>
-										{row.score ? parseFloat(row.score).toFixed(0) : "—"}
-									</span>
+									<ScoreBadge score={row.score} />
 								</td>
 							</tr>
 						))}
