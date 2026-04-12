@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { Sidebar } from "@/components/layout/sidebar";
+import { ChatPanel } from "@/features/chat/chat-panel";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -36,6 +37,9 @@ export default function RootLayout({
 
 					{/* Main content area — offset by sidebar width */}
 					<div className="pl-60 flex flex-col min-h-full">{children}</div>
+
+					{/* M6-07 — AI Chat panel (global, Cmd+/ to toggle) */}
+					<ChatPanel />
 				</Providers>
 				<Toaster
 					theme="dark"
