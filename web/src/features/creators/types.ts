@@ -108,4 +108,6 @@ export interface CreatorsFilters {
 	engagement_quality?: EngagementQuality;
 	followers_min?: number;
 	followers_max?: number;
+	sort_by?: "score" | "followers" | "created_at";
+	sort_order?: "asc" | "desc";
 }

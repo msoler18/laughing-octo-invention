@@ -96,6 +96,31 @@ export function useCampaignAudit(campaignId: string) {
 
 export type { AuditEvent };
 
+// M5-05 — patch post performance metrics
+export interface PostMetrics {
+	impressions?: number | null;
+	reach?: number | null;
+	saves?: number | null;
+	likes?: number | null;
+	comments?: number | null;
+}
+
+export function useUpdateMetrics(campaignId: string) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ creatorId, metrics }: { creatorId: string; metrics: PostMetrics }) =>
+			apiClient.patch(`/api/v1/campaigns/${campaignId}/creators/${creatorId}/metrics`, metrics),
+
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["campaign", campaignId] });
+			toast.success("Métricas guardadas");
+		},
+
+		onError: () => toast.error("Error al guardar métricas"),
+	});
+}
+
 export function useUpdatePostUrl(campaignId: string) {
 	const queryClient = useQueryClient();
 

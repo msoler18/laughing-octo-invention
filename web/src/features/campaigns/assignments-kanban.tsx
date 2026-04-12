@@ -10,6 +10,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 import { Badge, STATUS_LABELS, statusVariant } from "@/components/ui/badge";
+import { ScoreBadge } from "@/components/ui/score-badge";
 import { cn } from "@/lib/utils";
 import { ASSIGNMENT_STATUSES, type Assignment, type AssignmentStatus } from "./types";
 import { useUpdateAssignmentStatus } from "./use-campaign";
@@ -39,9 +40,8 @@ function KanbanCard({ assignment, isDragging }: { assignment: Assignment; isDrag
 			<p className="text-xs font-medium text-text-primary truncate">{assignment.fullName}</p>
 			<p className="text-xs text-text-tertiary font-mono truncate">@{assignment.instagramHandle}</p>
 			{assignment.score && (
-				<p className="mt-1.5 text-xs font-mono text-text-tertiary">
-					Score:{" "}
-					<span className="text-text-secondary">{parseFloat(assignment.score).toFixed(0)}</span>
+				<p className="mt-1.5 flex items-center gap-1 text-xs text-text-tertiary">
+					Score: <ScoreBadge score={assignment.score} />
 				</p>
 			)}
 		</div>

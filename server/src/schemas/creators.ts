@@ -16,6 +16,9 @@ export const CreatorsQuerySchema = z.object({
 	engagement_quality: EngagementQuality.optional(),
 	followers_min: z.coerce.number().int().min(0).optional(),
 	followers_max: z.coerce.number().int().min(0).optional(),
+	// M5-03 — sort support
+	sort_by: z.enum(["score", "followers", "created_at"]).default("created_at"),
+	sort_order: z.enum(["asc", "desc"]).default("desc"),
 });
 
 export type CreatorsQuery = z.infer<typeof CreatorsQuerySchema>;
