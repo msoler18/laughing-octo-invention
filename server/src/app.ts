@@ -9,6 +9,7 @@ import campaignLifecycleRoute from "./routes/v1/campaigns/lifecycle.js";
 import importRoute from "./routes/v1/import.js";
 import auditRoute from "./routes/v1/audit.js";
 import searchRoute from "./routes/v1/search.js";
+import chatRoute from "./routes/v1/chat.js";
 
 export async function buildApp() {
 	const app = fastify({
@@ -30,6 +31,7 @@ export async function buildApp() {
 	await app.register(importRoute, { prefix: "/api/v1" });
 	await app.register(auditRoute, { prefix: "/api/v1" });
 	await app.register(searchRoute, { prefix: "/api/v1" });
+	await app.register(chatRoute, { prefix: "/api/v1" });
 
 	return app;
 }
