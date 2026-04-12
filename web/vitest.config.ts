@@ -11,6 +11,9 @@ export default defineConfig({
 		// jsdom simulates the browser DOM for React component tests
 		environment: "jsdom",
 
+		// Expose Vitest globals (describe, it, expect) so @testing-library/jest-dom works
+		globals: true,
+
 		// Auto-import @testing-library/jest-dom matchers (toBeInTheDocument, etc.)
 		setupFiles: ["./src/test/setup.ts"],
 

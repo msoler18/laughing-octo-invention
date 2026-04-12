@@ -114,6 +114,7 @@ export function ChatPanel({ campaignId }: ChatPanelProps) {
 						<button
 							type="button"
 							onClick={() => setOpen(false)}
+							aria-label="Cerrar asistente"
 							className="rounded p-1 text-text-tertiary hover:text-text-primary hover:bg-bg-elevated transition-colors"
 						>
 							<X size={15} />
