@@ -49,10 +49,11 @@ describe("apiClient", () => {
 		const fetchSpy = vi
 			.spyOn(globalThis, "fetch")
 			.mockRejectedValueOnce(new TypeError("Failed to fetch"));
-		const err = await apiClient.get("/api/v1/ok").catch((e) => e);
+		const err: unknown = await apiClient.get("/api/v1/ok").catch((e) => e);
 		fetchSpy.mockRestore();
 		expect(err).toBeInstanceOf(ApiError);
-		expect(err.status).toBe(0);
-		expect(err.message).toMatch(/Sin conexión/);
+		const apiErr = err as ApiError;
+		expect(apiErr.status).toBe(0);
+		expect(apiErr.message).toMatch(/Sin conexión/);
 	});
 });

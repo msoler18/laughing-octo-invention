@@ -121,6 +121,41 @@ export function useUpdateMetrics(campaignId: string) {
 	});
 }
 
+// M7-18 — remove creator from campaign
+export function useRemoveCreator(campaignId: string) {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (creatorId: string) =>
+			apiClient.delete(`/api/v1/campaigns/${campaignId}/creators/${creatorId}`),
+
+		onMutate: async (creatorId) => {
+			await queryClient.cancelQueries({ queryKey: ["campaign", campaignId] });
+			const previous = queryClient.getQueryData<CampaignDetail>(["campaign", campaignId]);
+
+			queryClient.setQueryData<CampaignDetail>(["campaign", campaignId], (old) => {
+				if (!old) return old;
+				const assignments = old.assignments.filter((a) => a.creatorId !== creatorId);
+				return { ...old, assignments, totalAssigned: assignments.length };
+			});
+
+			return { previous };
+		},
+
+		onError: (_err, _vars, ctx) => {
+			if (ctx?.previous) {
+				queryClient.setQueryData(["campaign", campaignId], ctx.previous);
+			}
+			toast.error("No se pudo eliminar el creador");
+		},
+
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["campaign", campaignId] });
+			toast.success("Creador eliminado de la campaña");
+		},
+	});
+}
+
 export function useUpdatePostUrl(campaignId: string) {
 	const queryClient = useQueryClient();
 

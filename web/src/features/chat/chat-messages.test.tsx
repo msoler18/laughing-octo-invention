@@ -9,7 +9,6 @@ function makeUserMessage(text: string): UIMessage {
 	return {
 		id: "u1",
 		role: "user",
-		content: text,
 		parts: [{ type: "text", text }],
 	};
 }
@@ -18,7 +17,6 @@ function makeAssistantText(text: string): UIMessage {
 	return {
 		id: "a1",
 		role: "assistant",
-		content: text,
 		parts: [{ type: "text", text }],
 	};
 }
@@ -30,7 +28,6 @@ function makeToolMessage(
 	return {
 		id: "a2",
 		role: "assistant",
-		content: "",
 		parts: [
 			{
 				type: "dynamic-tool",

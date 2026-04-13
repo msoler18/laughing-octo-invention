@@ -63,7 +63,12 @@ export default function CreatorsPage() {
 				}
 				actions={
 					<>
-						<Button variant="secondary" size="sm" onClick={() => setImportOpen(true)}>
+						<Button
+							variant="secondary"
+							size="sm"
+							aria-label="Importar creadores desde CSV"
+							onClick={() => setImportOpen(true)}
+						>
 							<Upload size={14} />
 							Importar CSV
 						</Button>
@@ -127,12 +132,13 @@ export default function CreatorsPage() {
 										Página {pagination.page} de {pagination.pages} ·{" "}
 										{pagination.total.toLocaleString("es-CO")} resultados
 									</p>
-									<div className="flex items-center gap-2">
+									<nav aria-label="Paginación de creadores" className="flex items-center gap-2">
 										<Button
 											variant="secondary"
 											size="sm"
 											disabled={pagination.page <= 1}
 											onClick={() => setPage(pagination.page - 1)}
+											aria-label="Página anterior"
 										>
 											<ChevronLeft size={14} />
 											Anterior
@@ -142,11 +148,12 @@ export default function CreatorsPage() {
 											size="sm"
 											disabled={pagination.page >= pagination.pages}
 											onClick={() => setPage(pagination.page + 1)}
+											aria-label="Página siguiente"
 										>
 											Siguiente
 											<ChevronRight size={14} />
 										</Button>
-									</div>
+									</nav>
 								</div>
 							)}
 						</>

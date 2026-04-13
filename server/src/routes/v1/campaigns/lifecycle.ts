@@ -417,4 +417,60 @@ export default async function campaignLifecycleRoute(app: FastifyInstance) {
 			return reply.send(lines.join("\r\n"));
 		},
 	);
+
+	// ─── M7-18  DELETE /campaigns/:id/creators/:creatorId ───────────────────
+	app.delete(
+		"/campaigns/:id/creators/:creatorId",
+		{
+			schema: {
+				tags: ["campaigns"],
+				summary: "Remove a creator from a campaign",
+				params: {
+					type: "object",
+					required: ["id", "creatorId"],
+					properties: {
+						id: { type: "string", format: "uuid" },
+						creatorId: { type: "string", format: "uuid" },
+					},
+				},
+			},
+		},
+		async (request, reply) => {
+			const { id: campaignId, creatorId } = request.params as {
+				id: string;
+				creatorId: string;
+			};
+
+			const assignment = await fetchAssignment(campaignId, creatorId);
+			if (!assignment) {
+				return reply.code(404).send({
+					statusCode: 404,
+					error: "Not Found",
+					message: `Assignment not found for campaign ${campaignId} / creator ${creatorId}`,
+				});
+			}
+
+			const actor = performedBy(request);
+
+			await db.transaction(async (tx) => {
+				await tx
+					.delete(campaignCreators)
+					.where(
+						sql`${campaignCreators.campaignId} = ${campaignId} AND ${campaignCreators.creatorId} = ${creatorId}`,
+					);
+
+				await tx.insert(auditLog).values({
+					entityType: "campaign_creator",
+					entityId: campaignId,
+					action: "deleted",
+					fieldName: "creator",
+					oldValue: creatorId,
+					newValue: null,
+					performedBy: actor,
+				});
+			});
+
+			return reply.code(204).send();
+		},
+	);
 }
