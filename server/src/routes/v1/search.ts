@@ -116,7 +116,7 @@ export default async function searchRoute(app: FastifyInstance) {
 			let activeFilters: ActiveFilters = body.filters ?? {};
 			try {
 				const { object } = await generateObject({
-					model: openai("gpt-4o-mini"),
+					model: openai.chat("gpt-4o-mini"),
 					schema: ExtractedFiltersSchema,
 					system: `Eres un asistente que extrae filtros estructurados de consultas en lenguaje natural sobre creadores de contenido en Colombia.
 Extrae solo los filtros que estén explícitamente mencionados o claramente implícitos.
