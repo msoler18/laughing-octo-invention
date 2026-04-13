@@ -60,8 +60,7 @@ test.describe("Chat panel", () => {
 		await page.goto("/");
 		await page.getByTitle(/Abrir asistente IA/).click();
 		await expect(page.getByText("Asistente RealUp")).toBeVisible();
-		// X button is the last button in the header
-		await page.locator("button[type='button']").filter({ hasText: "" }).last().click();
+		await page.getByRole("button", { name: "Cerrar asistente" }).click();
 		await expect(page.getByText("Asistente RealUp")).not.toBeVisible();
 	});
 });
