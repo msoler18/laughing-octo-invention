@@ -13,10 +13,16 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-	const res = await fetch(`${BASE}${path}`, {
-		headers: { "Content-Type": "application/json", ...init?.headers },
-		...init,
-	});
+	let res: Response;
+	try {
+		res = await fetch(`${BASE}${path}`, {
+			headers: { "Content-Type": "application/json", ...init?.headers },
+			...init,
+		});
+	} catch {
+		// Network failure (server down, DNS error, CORS preflight blocked, etc.)
+		throw new ApiError(0, "Sin conexión con el servidor. Verifica que el backend esté corriendo.");
+	}
 
 	if (!res.ok) {
 		const body = await res.json().catch(() => ({ message: res.statusText }));

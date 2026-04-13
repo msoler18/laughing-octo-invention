@@ -2,12 +2,17 @@
 
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { BarChart2, CheckCircle2 } from "lucide-react";
+import { BarChart2, CheckCircle2, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { STATUS_LABELS } from "@/components/ui/badge";
 import { ScoreBadge } from "@/components/ui/score-badge";
 import { type Assignment, type AssignmentStatus, VALID_TRANSITIONS } from "./types";
-import { useUpdateAssignmentStatus, useUpdateMetrics, useUpdatePostUrl } from "./use-campaign";
+import {
+	useRemoveCreator,
+	useUpdateAssignmentStatus,
+	useUpdateMetrics,
+	useUpdatePostUrl,
+} from "./use-campaign";
 
 function PostUrlCell({
 	creatorId,
@@ -218,6 +223,51 @@ function MetricsCell({ assignment, campaignId }: { assignment: Assignment; campa
 	);
 }
 
+// ── Remove creator cell (M7-18) ───────────────────────────────────────────────
+
+function RemoveCell({ creatorId, campaignId }: { creatorId: string; campaignId: string }) {
+	const [confirming, setConfirming] = useState(false);
+	const { mutate, isPending } = useRemoveCreator(campaignId);
+
+	if (confirming) {
+		return (
+			<div className="flex items-center gap-1">
+				<button
+					type="button"
+					onClick={() => {
+						mutate(creatorId);
+						setConfirming(false);
+					}}
+					disabled={isPending}
+					aria-label="Confirmar eliminación"
+					className="rounded px-1.5 py-0.5 text-[10px] font-medium bg-red-500/15 text-red-400 hover:bg-red-500/25 ring-1 ring-red-500/30 transition-colors disabled:opacity-50"
+				>
+					Eliminar
+				</button>
+				<button
+					type="button"
+					onClick={() => setConfirming(false)}
+					aria-label="Cancelar eliminación"
+					className="rounded px-1.5 py-0.5 text-[10px] font-medium text-text-tertiary hover:text-text-primary transition-colors"
+				>
+					Cancelar
+				</button>
+			</div>
+		);
+	}
+
+	return (
+		<button
+			type="button"
+			onClick={() => setConfirming(true)}
+			aria-label="Eliminar creador de la campaña"
+			className="rounded p-1 text-text-tertiary hover:text-red-400 hover:bg-red-500/10 transition-colors"
+		>
+			<Trash2 size={13} />
+		</button>
+	);
+}
+
 export function AssignmentsTable({
 	assignments,
 	campaignId,
@@ -241,7 +291,7 @@ export function AssignmentsTable({
 			<table className="min-w-full divide-y divide-border-default text-sm">
 				<thead className="bg-bg-surface">
 					<tr>
-						{["Creador", "Estado", "Post URL", "Métricas", "Score", "Últ. cambio"].map((h) => (
+						{["Creador", "Estado", "Post URL", "Métricas", "Score", "Últ. cambio", ""].map((h) => (
 							<th
 								key={h}
 								className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary uppercase tracking-wide whitespace-nowrap"
@@ -285,6 +335,10 @@ export function AssignmentsTable({
 									addSuffix: true,
 									locale: es,
 								})}
+							</td>
+							{/* M7-18 — remove creator */}
+							<td className="px-4 py-3">
+								<RemoveCell creatorId={a.creatorId} campaignId={campaignId} />
 							</td>
 						</tr>
 					))}

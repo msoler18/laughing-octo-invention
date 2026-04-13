@@ -114,6 +114,7 @@ export function ChatPanel({ campaignId }: ChatPanelProps) {
 						<button
 							type="button"
 							onClick={() => setOpen(false)}
+							aria-label="Cerrar asistente"
 							className="rounded p-1 text-text-tertiary hover:text-text-primary hover:bg-bg-elevated transition-colors"
 						>
 							<X size={15} />
@@ -162,9 +163,13 @@ export function ChatPanel({ campaignId }: ChatPanelProps) {
 					{/* Error banner */}
 					{error && (
 						<div className="mx-4 mb-2 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400 ring-1 ring-red-500/20">
-							{error.message.includes("503")
+							{error.message.includes("503") || error.message.includes("sobrecargado")
 								? "El modelo de IA está sobrecargado. Intenta en unos segundos."
-								: "Error al conectar con el asistente."}
+								: error.message.includes("Failed to fetch") ||
+										error.message.includes("Sin conexión") ||
+										error.message.includes("NetworkError")
+									? "Sin conexión con el servidor. Verifica que el backend esté corriendo."
+									: "Error al conectar con el asistente."}
 						</div>
 					)}
 

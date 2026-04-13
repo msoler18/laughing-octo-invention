@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { ErrorBoundary } from "@/components/error-boundary";
 import { Sidebar } from "@/components/layout/sidebar";
 import { ChatPanel } from "@/features/chat/chat-panel";
 import { Providers } from "./providers";
@@ -36,7 +37,10 @@ export default function RootLayout({
 					<Sidebar />
 
 					{/* Main content area — offset by sidebar width */}
-					<div className="pl-60 flex flex-col min-h-full">{children}</div>
+					<div className="pl-60 flex flex-col min-h-full">
+						{/* M7-08 — ErrorBoundary wraps all page content */}
+						<ErrorBoundary>{children}</ErrorBoundary>
+					</div>
 
 					{/* M6-07 — AI Chat panel (global, Cmd+/ to toggle) */}
 					<ChatPanel />
