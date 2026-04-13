@@ -8,7 +8,6 @@ import { creators } from "../../db/schema/creators.js";
 import { creatorScores } from "../../db/schema/creator-scores.js";
 import { processEmbeddingBatch } from "../../lib/embedding-worker.js";
 import { generateEmbedding } from "../../lib/embedding.js";
-import type { ExtractedFilters } from "../../schemas/search.js";
 import { ExtractedFiltersSchema, SearchBodySchema } from "../../schemas/search.js";
 
 export default async function searchRoute(app: FastifyInstance) {
@@ -101,43 +100,56 @@ export default async function searchRoute(app: FastifyInstance) {
 		async (request, reply) => {
 			const body = SearchBodySchema.parse(request.body);
 
+			// ActiveFilters: optional fields used for building SQL conditions.
+			// Separate from ExtractedFilters (nullable schema for OpenAI structured outputs).
+			// All optionals are explicit `T | undefined` due to exactOptionalPropertyTypes.
+			type ActiveFilters = {
+				city?: string | undefined;
+				tier?: "nano" | "micro" | "mid" | "macro" | "mega" | undefined;
+				followers_min?: number | undefined;
+				followers_max?: number | undefined;
+				engagement_quality?: "zero" | "low" | "average" | "high" | "viral" | undefined;
+				category_slugs?: string[] | undefined;
+			};
+
 			// Step 1 — Extract hard filters from query via gpt-4o-mini
-			let extractedFilters: ExtractedFilters = {};
+			let activeFilters: ActiveFilters = body.filters ?? {};
 			try {
 				const { object } = await generateObject({
 					model: openai("gpt-4o-mini"),
 					schema: ExtractedFiltersSchema,
 					system: `Eres un asistente que extrae filtros estructurados de consultas en lenguaje natural sobre creadores de contenido en Colombia.
 Extrae solo los filtros que estén explícitamente mencionados o claramente implícitos.
-Si un filtro no aplica, omítelo. No inventes datos.`,
+Si un filtro no aplica, devuelve null. No inventes datos.`,
 					prompt: body.query,
 				});
-				extractedFilters = object;
+				// Strip nulls — null means "not mentioned in query", not "filter by null".
+				// LLM-extracted filters take precedence over caller-provided ones.
+				const llmFilters = Object.fromEntries(
+					Object.entries(object).filter(([, v]) => v !== null),
+				) as ActiveFilters;
+				activeFilters = { ...(body.filters ?? {}), ...llmFilters };
 			} catch (err) {
 				// Non-fatal — fallback to vector-only search
 				app.log.warn({ err }, "LLM filter extraction failed, proceeding without hard filters");
 			}
 
-			// Merge caller-provided filters (LLM-extracted take precedence)
-			const callerFilters = body.filters ?? {};
-			const filters: ExtractedFilters = { ...callerFilters, ...extractedFilters };
-
 			// Step 2 — Build WHERE conditions from hard filters
 			const conditions = [];
-			if (filters.city) {
-				conditions.push(sql`LOWER(${creators.city}) LIKE LOWER(${"%" + filters.city + "%"})`);
+			if (activeFilters.city) {
+				conditions.push(sql`LOWER(${creators.city}) LIKE LOWER(${"%" + activeFilters.city + "%"})`);
 			}
-			if (filters.tier) {
-				conditions.push(sql`${creators.creatorTier} = ${filters.tier}`);
+			if (activeFilters.tier) {
+				conditions.push(sql`${creators.creatorTier} = ${activeFilters.tier}`);
 			}
-			if (filters.engagement_quality) {
-				conditions.push(sql`${creators.engagementQuality} = ${filters.engagement_quality}`);
+			if (activeFilters.engagement_quality) {
+				conditions.push(sql`${creators.engagementQuality} = ${activeFilters.engagement_quality}`);
 			}
-			if (filters.followers_min !== undefined) {
-				conditions.push(gte(creators.followersCount, filters.followers_min));
+			if (activeFilters.followers_min !== undefined) {
+				conditions.push(gte(creators.followersCount, activeFilters.followers_min));
 			}
-			if (filters.followers_max !== undefined) {
-				conditions.push(lte(creators.followersCount, filters.followers_max));
+			if (activeFilters.followers_max !== undefined) {
+				conditions.push(lte(creators.followersCount, activeFilters.followers_max));
 			}
 
 			// Step 3 — Generate query embedding in parallel with SQL prep
@@ -211,7 +223,7 @@ Si un filtro no aplica, omítelo. No inventes datos.`,
 					score: r.score,
 					semanticScore: Math.round((1 - Number(r.distance)) * 100) / 100,
 				})),
-				filtersApplied: filters,
+				filtersApplied: activeFilters,
 				total: rows.length,
 				embeddingsPending: pendingCount,
 			});
