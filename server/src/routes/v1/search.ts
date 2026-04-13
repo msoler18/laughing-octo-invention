@@ -1,6 +1,6 @@
 import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
-import { and, count, gte, isNotNull, isNull, lte, sql } from "drizzle-orm";
+import { and, count, isNotNull, isNull, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { db } from "../../db/index.js";
 import { creatorEmbeddings } from "../../db/schema/creator-embeddings.js";
@@ -134,34 +134,43 @@ Si un filtro no aplica, devuelve null. No inventes datos.`,
 				app.log.warn({ err }, "LLM filter extraction failed, proceeding without hard filters");
 			}
 
-			// Step 2 — Build WHERE conditions from hard filters
+			// Step 2 — Build WHERE conditions from hard filters.
+			// Use the table alias `c` (not Drizzle column refs) — the raw SQL query aliases creators as `c`.
 			const conditions = [];
 			if (activeFilters.city) {
-				conditions.push(sql`LOWER(${creators.city}) LIKE LOWER(${"%" + activeFilters.city + "%"})`);
+				conditions.push(sql`LOWER(c.city) LIKE LOWER(${"%" + activeFilters.city + "%"})`);
 			}
 			if (activeFilters.tier) {
-				conditions.push(sql`${creators.creatorTier} = ${activeFilters.tier}`);
+				conditions.push(sql`c.creator_tier = ${activeFilters.tier}`);
 			}
 			if (activeFilters.engagement_quality) {
-				conditions.push(sql`${creators.engagementQuality} = ${activeFilters.engagement_quality}`);
+				conditions.push(sql`c.engagement_quality = ${activeFilters.engagement_quality}`);
 			}
 			if (activeFilters.followers_min !== undefined) {
-				conditions.push(gte(creators.followersCount, activeFilters.followers_min));
+				conditions.push(sql`c.followers_count >= ${activeFilters.followers_min}`);
 			}
 			if (activeFilters.followers_max !== undefined) {
-				conditions.push(lte(creators.followersCount, activeFilters.followers_max));
+				conditions.push(sql`c.followers_count <= ${activeFilters.followers_max}`);
 			}
 
-			// Step 3 — Generate query embedding in parallel with SQL prep
-			const queryEmbedding = await generateEmbedding(body.query);
-			const vectorStr = `[${queryEmbedding.join(",")}]`;
+			// Step 3 — Generate query embedding
+			let queryEmbedding: number[];
+			try {
+				queryEmbedding = await generateEmbedding(body.query);
+			} catch (err) {
+				app.log.error({ err }, "OpenAI embedding generation failed");
+				return reply.status(502).send({ error: "Embedding service unavailable", detail: err instanceof Error ? err.message : String(err) });
+			}
+			// Inline the vector literal — postgres.js can't resolve $1::vector casts.
+			// Safe to use sql.raw() because the array comes from OpenAI (pure floats, no user input).
+			const vectorSql = sql.raw(`'[${queryEmbedding.join(",")}]'::vector`);
 
 			// Step 4 — Hybrid search: cosine distance + normalized score
 			// hybrid_score = distance * 0.7 + (1 - score/100) * 0.3
 			// Lower hybrid_score = better match
 			const whereClause = conditions.length > 0 ? and(...conditions) : sql`TRUE`;
 
-			const rows = await db.execute<{
+			let rows: Array<{
 				id: string;
 				instagram_handle: string;
 				full_name: string;
@@ -175,31 +184,41 @@ Si un filtro no aplica, devuelve null. No inventes datos.`,
 				score: string | null;
 				distance: number;
 				hybrid_score: number;
-			}>(sql`
-				SELECT
-					c.id,
-					c.instagram_handle,
-					c.full_name,
-					c.city,
-					c.creator_tier,
-					c.engagement_quality,
-					c.followers_count,
-					c.engagement_rate,
-					c.bio_text,
-					c.bio_keywords,
-					cs.score,
-					(ce.embedding <=> ${vectorStr}::vector) AS distance,
-					(
-						(ce.embedding <=> ${vectorStr}::vector) * 0.7 +
-						(1.0 - COALESCE(cs.score::numeric, 50) / 100.0) * 0.3
-					) AS hybrid_score
-				FROM creators c
-				INNER JOIN creator_embeddings ce ON ce.creator_id = c.id
-				LEFT JOIN creator_scores cs ON cs.creator_id = c.id
-				WHERE ${whereClause}
-				ORDER BY hybrid_score ASC
-				LIMIT ${body.limit}
-			`);
+			}>;
+			try {
+				rows = await db.execute(sql`
+					SELECT
+						c.id,
+						c.instagram_handle,
+						c.full_name,
+						c.city,
+						c.creator_tier,
+						c.engagement_quality,
+						c.followers_count,
+						c.engagement_rate,
+						c.bio_text,
+						c.bio_keywords,
+						cs.score,
+						(ce.embedding <=> ${vectorSql}) AS distance,
+						(
+							(ce.embedding <=> ${vectorSql}) * 0.7 +
+							(1.0 - COALESCE(cs.score::numeric, 50) / 100.0) * 0.3
+						) AS hybrid_score
+					FROM creators c
+					INNER JOIN creator_embeddings ce ON ce.creator_id = c.id
+					LEFT JOIN creator_scores cs ON cs.creator_id = c.id
+					WHERE ${whereClause}
+					ORDER BY hybrid_score ASC
+					LIMIT ${body.limit}
+				`) as typeof rows;
+			} catch (err) {
+				const cause = (err as { cause?: { message?: string } })?.cause;
+				app.log.error({ pgError: cause?.message ?? String(err) }, "Vector search query failed");
+				return reply.status(500).send({
+					error: "Vector search failed",
+					detail: cause?.message ?? (err instanceof Error ? err.message : String(err)),
+				});
+			}
 
 			// Step 5 — Check how many creators have embeddings (for fallback warning)
 			const [pendingRow] = await db

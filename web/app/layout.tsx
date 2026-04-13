@@ -29,7 +29,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="es" className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}>
+		<html lang="es" className={`${inter.variable} ${jetbrainsMono.variable} h-full antialiased`} suppressHydrationWarning>
 			<body className="h-full bg-bg-page text-text-primary">
 				<Providers>
 					{/* Fixed sidebar — 240px */}
