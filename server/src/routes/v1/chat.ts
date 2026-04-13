@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { stepCountIs, streamText } from "ai";
+import { convertToModelMessages, jsonSchema, stepCountIs, streamText } from "ai";
 import { and, eq, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
@@ -93,7 +93,7 @@ async function execSearchCreators(
 	} = params;
 
 	const queryEmbedding = await generateEmbedding(query);
-	const vectorStr = `[${queryEmbedding.join(",")}]`;
+	const vectorSql = sql.raw(`'[${queryEmbedding.join(",")}]'::vector`);
 
 	// Build filter fragments using Drizzle sql tag
 	const filterParts = [];
@@ -135,10 +135,10 @@ async function execSearchCreators(
 		FROM creators c
 		INNER JOIN creator_embeddings ce ON ce.creator_id = c.id
 		LEFT JOIN creator_scores cs ON cs.creator_id = c.id
-		WHERE (ce.embedding <=> ${vectorStr}::vector) < 0.8
+		WHERE (ce.embedding <=> ${vectorSql}) < 0.8
 		${filterClause}
 		ORDER BY (
-			(ce.embedding <=> ${vectorStr}::vector) * 0.7 +
+			(ce.embedding <=> ${vectorSql}) * 0.7 +
 			(1.0 - COALESCE(cs.score::numeric, 50) / 100.0) * 0.3
 		) ASC
 		LIMIT ${limit}
@@ -246,7 +246,7 @@ async function execFindSimilarCreators(
 		excludeIds = [...excludeIds, ...assigned.map((a) => a.creatorId)];
 	}
 
-	const vectorStr = `[${ref.embedding.join(",")}]`;
+	const refVectorSql = sql.raw(`'[${ref.embedding.join(",")}]'::vector`);
 
 	const rows = await db.execute<{
 		id: string;
@@ -266,7 +266,7 @@ async function execFindSimilarCreators(
 			c.creator_tier,
 			c.followers_count,
 			cs.score,
-			(ce.embedding <=> ${vectorStr}::vector) AS distance
+			(ce.embedding <=> ${refVectorSql}) AS distance
 		FROM creators c
 		INNER JOIN creator_embeddings ce ON ce.creator_id = c.id
 		LEFT JOIN creator_scores cs ON cs.creator_id = c.id
@@ -297,37 +297,72 @@ async function execFindSimilarCreators(
 	};
 }
 
-// ── M6-02/03/04  Tool definitions (plain objects, cast at call site) ──────────
-// AI SDK v6 `tool()` helper has TypeScript overload issues with Zod v4.
-// We define tools as plain objects and cast the tools map to `any` in streamText.
+// ── M6-02/03/04  Tool definitions ────────────────────────────────────────────
+// ai package reads tool.parameters via asSchema() — requires a jsonSchema() wrapper
+// so the Schema symbol is recognized. @ai-sdk/openai then reads the resulting inputSchema.
+// Plain objects with jsonSchema() in parameters, cast to any to bypass Zod v4 TS issues.
 
-const TOOLS = {
+// biome-ignore lint/suspicious/noExplicitAny: jsonSchema<unknown> + Zod v4 TS incompatibility
+const TOOLS: Record<string, any> = {
 	searchCreators: {
 		description:
 			"Busca creadores de contenido usando búsqueda semántica + filtros. Devuelve los más relevantes con su score.",
-		parameters: SearchCreatorsParams,
-		execute: execSearchCreators,
+		inputSchema: jsonSchema({
+			type: "object",
+			properties: {
+				query: { type: "string", description: "Descripción del perfil de creador buscado (lenguaje natural)" },
+				city: { type: "string", description: "Ciudad colombiana para filtrar (ej: Bogotá, Medellín)" },
+				tier: { type: "string", enum: ["nano", "micro", "mid", "macro", "mega"], description: "Tier por seguidores" },
+				engagement_quality: { type: "string", enum: ["zero", "low", "average", "high", "viral"] },
+				followers_min: { type: "integer", minimum: 0 },
+				followers_max: { type: "integer", minimum: 0 },
+				limit: { type: "integer", minimum: 1, maximum: 20, default: 10 },
+			},
+			required: ["query"],
+		}),
+		execute: async (params: unknown) => execSearchCreators(SearchCreatorsParams.parse(params)),
 	},
 	queryCampaign: {
 		description:
 			"Consulta el estado de las asignaciones de una campaña: quiénes están en cada etapa, quiénes publicaron, quiénes no respondieron, etc.",
-		parameters: QueryCampaignParams,
-		execute: execQueryCampaign,
+		inputSchema: jsonSchema({
+			type: "object",
+			properties: {
+				campaignId: { type: "string", format: "uuid", description: "ID de la campaña a consultar" },
+				status: {
+					type: "string",
+					enum: ["prospecto", "contactado", "confirmado", "en_brief", "contenido_enviado", "aprobado", "publicado", "verificado", "pagado"],
+					description: "Filtrar por estado específico (opcional)",
+				},
+			},
+			required: ["campaignId"],
+		}),
+		execute: async (params: unknown) => execQueryCampaign(QueryCampaignParams.parse(params)),
 	},
 	findSimilarCreators: {
 		description:
 			"Dado un creador, encuentra los N más parecidos en perfil y contenido. Útil para alternativas o reemplazos.",
-		parameters: FindSimilarCreatorsParams,
-		execute: execFindSimilarCreators,
+		inputSchema: jsonSchema({
+			type: "object",
+			properties: {
+				creatorId: { type: "string", format: "uuid", description: "ID del creador de referencia" },
+				limit: { type: "integer", minimum: 1, maximum: 10, default: 5 },
+				excludeCampaignId: { type: "string", format: "uuid", description: "Excluir creadores ya asignados a esta campaña" },
+			},
+			required: ["creatorId"],
+		}),
+		execute: async (params: unknown) => execFindSimilarCreators(FindSimilarCreatorsParams.parse(params)),
 	},
 };
 
 // ── M6-01  POST /api/v1/chat ──────────────────────────────────────────────────
 
+// AI SDK v6 sends UIMessage format — content is in `parts`, not as a top-level string.
+// Use passthrough() to allow extra fields (id, parts, createdAt, etc.) and make content optional.
 const ChatBodySchema = z.object({
 	messages: z
 		.array(
-			z.object({ role: z.enum(["user", "assistant"]), content: z.string() }),
+			z.object({ role: z.enum(["user", "assistant"]) }).passthrough(),
 		)
 		.min(1),
 	campaignId: z.string().uuid().optional(),
@@ -375,15 +410,19 @@ export default async function chatRoute(app: FastifyInstance) {
 			try {
 				// biome-ignore lint/suspicious/noExplicitAny: see above
 				result = streamText({
-					model: openai("gpt-4o-mini"),
+					model: openai.chat("gpt-4o-mini"),
 					system: systemPrompt,
-					// biome-ignore lint/suspicious/noExplicitAny: message array validated by Zod
-					messages: messages as any,
-					// biome-ignore lint/suspicious/noExplicitAny: tool plain-object pattern
+					// biome-ignore lint/suspicious/noExplicitAny: convertToModelMessages handles UIMessage → CoreMessage
+					messages: await convertToModelMessages(messages as any),
+					// biome-ignore lint/suspicious/noExplicitAny: tool() with jsonSchema<unknown> requires cast
 					tools: TOOLS as any,
 					stopWhen: stepCountIs(5),
 					onError: ({ error }) => {
-						app.log.error({ error }, "[chat] streamText error");
+						app.log.error({
+							msg: error instanceof Error ? error.message : String(error),
+							stack: error instanceof Error ? error.stack : undefined,
+							cause: error instanceof Error && error.cause ? String(error.cause) : undefined,
+						}, "[chat] streamText error");
 					},
 				});
 			} catch (err) {
