@@ -20,6 +20,18 @@ export default function CreatorsPage() {
 	const [filters, setFilters] = useState<CreatorsFilters>({ page: 1, limit: 25 });
 	const [importOpen, setImportOpen] = useState(false);
 
+	const hasActiveFilters = Boolean(
+		filters.city ||
+			filters.tier ||
+			filters.engagement_quality ||
+			filters.followers_min ||
+			filters.followers_max
+	);
+
+	function clearFilters() {
+		setFilters({ page: 1, limit: 25 });
+	}
+
 	// Show toast after redirect from Server Action
 	useEffect(() => {
 		const t = searchParams.get("toast");
@@ -98,6 +110,8 @@ export default function CreatorsPage() {
 								rows={rows}
 								isLoading={isLoading}
 								isError={isError}
+								hasActiveFilters={hasActiveFilters}
+								onClearFilters={clearFilters}
 								onRowClick={(id) => router.push(`/creators/${id}/edit`)}
 								sortBy={filters.sort_by}
 								sortOrder={filters.sort_order}

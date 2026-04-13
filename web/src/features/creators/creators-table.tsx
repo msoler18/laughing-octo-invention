@@ -56,6 +56,8 @@ interface CreatorsTableProps {
 	rows: CreatorRow[];
 	isLoading: boolean;
 	isError: boolean;
+	hasActiveFilters?: boolean;
+	onClearFilters?: () => void;
 	onRowClick?: (id: string) => void;
 	sortBy?: "score" | "followers" | "created_at";
 	sortOrder?: "asc" | "desc";
@@ -76,6 +78,8 @@ export function CreatorsTable({
 	rows,
 	isLoading,
 	isError,
+	hasActiveFilters = false,
+	onClearFilters,
 	onRowClick,
 	sortBy = "created_at",
 	sortOrder = "desc",
@@ -143,14 +147,36 @@ export function CreatorsTable({
 					{isLoading &&
 						["r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8"].map((k) => <SkeletonRow key={k} />)}
 
-					{/* Empty state */}
+					{/* Empty state — diferencia "sin creadores" vs "sin resultados con filtros" */}
 					{!isLoading && rows.length === 0 && (
 						<tr>
 							<td colSpan={STATIC_COLUMNS.length} className="px-4 py-16 text-center">
-								<p className="text-sm font-medium text-text-primary">Sin resultados</p>
-								<p className="mt-1 text-xs text-text-tertiary">
-									Ajusta los filtros o importa creadores con un CSV.
-								</p>
+								{hasActiveFilters ? (
+									<>
+										<p className="text-sm font-medium text-text-primary">
+											Sin resultados para estos filtros
+										</p>
+										<p className="mt-1 text-xs text-text-tertiary">
+											Prueba ajustando o limpiando los filtros activos.
+										</p>
+										{onClearFilters && (
+											<button
+												type="button"
+												onClick={onClearFilters}
+												className="mt-3 text-xs text-violet-400 hover:text-violet-300 underline underline-offset-2 transition-colors"
+											>
+												Limpiar filtros
+											</button>
+										)}
+									</>
+								) : (
+									<>
+										<p className="text-sm font-medium text-text-primary">Sin creadores todavía</p>
+										<p className="mt-1 text-xs text-text-tertiary">
+											Importa creadores con un CSV o añade uno manualmente.
+										</p>
+									</>
+								)}
 							</td>
 						</tr>
 					)}

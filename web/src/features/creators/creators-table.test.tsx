@@ -39,7 +39,7 @@ describe("CreatorsTable", () => {
 
 	it("shows empty state when no rows and not loading", () => {
 		render(<CreatorsTable rows={[]} isLoading={false} isError={false} />);
-		expect(screen.getByText("Sin resultados")).toBeInTheDocument();
+		expect(screen.getByText("Sin creadores todavía")).toBeInTheDocument();
 	});
 
 	it("shows error state", () => {

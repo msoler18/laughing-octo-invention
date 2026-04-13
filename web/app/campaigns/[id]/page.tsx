@@ -60,7 +60,7 @@ export default function CampaignDetailPage() {
 	}
 
 	// M2-18 — TanStack Query
-	const { data: campaign, isLoading, isError } = useCampaign(id);
+	const { data: campaign, isLoading, isError, refetch } = useCampaign(id);
 
 	// M2-23 — Supabase Realtime
 	useCampaignRealtime(id);
@@ -70,15 +70,24 @@ export default function CampaignDetailPage() {
 	if (isError || !campaign) {
 		return (
 			<div className="flex flex-col items-center justify-center h-full py-24 text-center">
-				<p className="text-sm font-medium text-text-primary">Campaña no encontrada</p>
-				<Button
-					variant="ghost"
-					size="sm"
-					className="mt-3"
-					onClick={() => router.push("/campaigns")}
-				>
-					Volver a campañas
-				</Button>
+				<p className="text-sm font-medium text-text-primary">
+					{isError ? "Error al cargar la campaña" : "Campaña no encontrada"}
+				</p>
+				<p className="mt-1 text-xs text-text-tertiary">
+					{isError
+						? "Verifica la conexión con el servidor e intenta de nuevo."
+						: "Esta campaña no existe o fue eliminada."}
+				</p>
+				<div className="flex items-center gap-2 mt-4">
+					{isError && (
+						<Button variant="secondary" size="sm" onClick={() => refetch()}>
+							Reintentar
+						</Button>
+					)}
+					<Button variant="ghost" size="sm" onClick={() => router.push("/campaigns")}>
+						Volver a campañas
+					</Button>
+				</div>
 			</div>
 		);
 	}
