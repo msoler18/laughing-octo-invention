@@ -34,9 +34,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-	experimental: {
-		typedRoutes: true,
-	},
+	typedRoutes: true,
 
 	// M7-16 — Security response headers
 	async headers() {

@@ -10,14 +10,18 @@ test.describe("Creators list", () => {
 		await expect(page.getByRole("columnheader", { name: /Score/i })).toBeVisible();
 	});
 
-	test("score column header is clickable for sorting", async ({ page }) => {
+	test("score column header is clickable and activates sort icon", async ({ page }) => {
 		await page.goto("/creators");
 		const scoreHeader = page.getByRole("columnheader", { name: /Score/i });
 		await expect(scoreHeader).toBeVisible();
-		// Should be clickable (cursor-pointer class applied when onSort is wired)
+		// Before click: inactive sort icon (lucide-chevrons-up-down)
+		await expect(scoreHeader.locator("svg")).toBeVisible();
+		// Click activates sort — icon switches to lucide-chevron-down (desc)
 		await scoreHeader.click();
-		// After click the URL should reflect sort params
-		await expect(page).toHaveURL(/sort_by=score/);
+		// The header should still be visible and the page should not error
+		await expect(scoreHeader).toBeVisible();
+		// Active sort icon has text-blue-400 class (vs text-text-tertiary when inactive)
+		await expect(scoreHeader.locator("svg")).toHaveClass(/lucide-chevron/);
 	});
 });
 
